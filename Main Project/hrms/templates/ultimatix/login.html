@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MyLogin</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'ultimatix/web/fontawesome-free-5.0.13/css/fontawesome-all.min.css' %}">
+    <style>
+        body{
+        width:100%;
+        height:100%;
+            font-family: "Lato", sans-serif;
+        }
+        .home-1{
+        padding:0%;
+        }
+        .home-2{
+        padding:0px;
+        }
+.login-main-text{
+    margin-top:21%;
+    margin-left:15%;
+    color: #fff;
+}
+.main_form{
+width:69%;
+    margin-left: 16%;
+    margin-top: 36%;
+}
+
+.input-group-addon{
+    border-radius: 20px 0px 0px 20px;
+}
+.form-control{
+height:45px;
+border-radius: 0px 20px 20px 0px;
+}
+.btn1{
+height:45px;
+border-radius: 20px 20px 20px 20px;
+background:#2980b9;
+color:white;
+border:0px;
+}
+
+.overlay{
+    width:100%;
+    height:100%;
+    background:
+    linear-gradient(
+    rgba(77, 19, 209, 0.15),
+    rgba(77, 19, 209, 0.15)
+    )
+    }
+    <!--rgba(77, 5, 232, 0.15);rgba(77, 19, 209, 0.2)-->
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row" style="height:657px;">
+        <div class="col-md-8 home-1" style="background-image:url('../../../static/ultimatix/web/images/login.jpg');background-repeat:no-repeat;background-size:100% 100%;height:100%;">
+            <div class="overlay">
+                <label class="login-main-text"><h1>Human Resource <br>Management System</h1></label><br>
+                <p style="color: #fff;    margin-left:15%;">HRMS</p>
+            </div>
+        </div>
+        <div class="col-md-4 home-2" style="height:657px;">
+            <form action="{% url 'ultimatix:show_login'%}" method="post" class="main_form">
+                {% csrf_token %}
+                <h2 class="text-center">Sign In</h2>
+                <div class="form-group">
+        	        <div class="input-group">
+                    <span class="input-group-addon" ><i class="fa fa-user"></i></span>
+                    <input type="number" class="form-control" placeholder="Employee Id" id="eid" name="eid" required="required">
+                    </div>
+                </div>
+		        <div class="form-group">
+                    <div class="input-group">
+                    <span class="input-group-addon" ><i class="fa fa-lock"></i></span>
+                    <input type="password" class="form-control" placeholder="Password" id="pwd" name="pwd" required="required">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn1 btn-block" value="Log In" name="login" id="login">
+                </div>
+                {% if error %}
+                    <h5 class="text-center" style="color:red">{{error}}</h5>
+                {% endif %}
+                <div class="clearfix">
+                    <label class="pull-left checkbox-inline"><input type="checkbox"> Remember me</label>
+                    <a href="#" class="pull-right">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

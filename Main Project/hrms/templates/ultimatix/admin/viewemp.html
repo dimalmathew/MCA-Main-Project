@@ -1,0 +1,85 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+<!-- Latest compiled and minified CSS -->
+
+{%block body %}
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+</style>
+<link rel="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<h2 class="w3ls_head">Employee Management</h2>
+<div class="grid_3 grid_4 w3layouts ">
+        <!--<h3 class="hdg">Headings</h3>-->
+    <div class="bs-example">
+
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th style="color:black;">Employee Id</th>
+                <th style="color:black;">Name</th>
+                <th style="color:black;">DOB</th>
+                <th style="color:black;">Gender</th>
+
+                <th style="color:black;">E-mail</th>
+                <th style="color:black;">DOJ</th>
+                <th style="color:black;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in eobj %}
+            <tr>
+                <td style="color:black;"><a href="{% url 'ultimatix:updt_emp' e.e_id %}">{{e.e_id}}</a></td>
+                <td style="color:black;">{{e.e_fname}} {{e.e_lname}} </td>
+                <td style="color:black;">{{e.e_dob}}</td>
+                <td style="color:black;">{{e.e_gender}}</td>
+
+                <td style="color:black;">{{e.e_email}}</td>
+                <td style="color:black;">{{e.e_doj}}</td>
+                <td style="color:black;">{{e.e_status}}</td>
+            </tr>
+            {%endfor%}
+
+        </tbody>
+        <!--<tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Age</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>-->
+    </table>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+<script>
+$(document).ready(function(){
+	$('#emp').addClass("active");
+	$('#view_emp').addClass("active");
+
+    $('#example').DataTable();
+
+});
+</script>
+<!--$('#example').DataTable();-->
+{% endblock %}

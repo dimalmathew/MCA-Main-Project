@@ -1,0 +1,160 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<h2 class="w3ls_head">Project Details</h2>
+<div class="grid_3 grid_4 w3layouts position-center">
+<!--<h1>{{eid}}</h1>-->
+    <div class="bs-example">
+        <form action="{% url 'ultimatix:updt_project' pobj.pid %}" method="post">
+            {% csrf_token%}
+            {% if error %}
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="alert alert-danger" id="error">
+                        <strong>Danger!</strong>{{error}}
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {% elif success %}
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="alert alert-success" id="success">
+                        <strong>Success!</strong>{{success}}
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {%endif%}
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="pid">Project Id</label>
+                    <input type="text" class="form-control" name="pid" id="pid" value="{{pobj.pid}}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="tle">Name</label>
+                    <input type="text" class="form-control" name="tle" id="tle" value="{{pobj.ptitle}}" readonly>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="desc">Description</label>
+                    <input type="text" class="form-control" name="desc" id="desc" value="{{pobj.pdesc}}"required>
+                </div>
+                <div class="col-md-6">
+                    <label for="crtd">Created By</label>
+                    <input type="text" class="form-control" name="crtd" id="crtd" value="{{pobj.pcrtd}}" readonly>
+                </div>
+
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="sdate">Start Date</label>
+                    <input type="date" class="form-control" name="sdate" id="sdate" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="expedate">End Date (Expected)</label>
+                    <input type="date" class="form-control" name="expedate" id="expedate">
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="client">Client</label>
+                    <input type="text" class="form-control" name="client" id="client" value="{{pobj.pclient}}" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="status" >Proejct status</label>
+                    <select  title="Choose Status" class="form-control" name="status" id="status" required>
+                        <option value="A">Active</option>
+                        <option value="C">Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-10">
+                        {% if pobj.pedate %}
+                        <a href="{%url 'ultimatix:view_project' %}" class="btn btn-primary">Back to details</a>
+                        {%else%}
+                        <button type="submit" class="btn btn-primary form-control" value="update" name="update" id="update" >Update Project</button>
+                        {%endif%}
+
+                    </div>
+                    <div class="col-md-1"></div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+	$('#project').addClass("active");
+	$('#project_dtl').addClass("active");
+
+	var s="{{pobj.psdate}}";
+    date=new Date(s);
+    y = date.getFullYear();
+    m = date.getMonth()+1;
+    d = date.getDate();
+    if (d < 10) {
+    d = '0' + d;
+    }
+    if (m < 10) {
+    m = '0' + m;
+    }
+    document.getElementById('sdate').value = (y+'-' + m + '-'+d);
+
+
+
+    {% if pobj.pexpedate %}
+        var s1='{{pobj.pexpedate}}';
+        date1=new Date(s1);
+        y1 = date1.getFullYear();
+        m1 = date1.getMonth()+1;
+        d1 = date1.getDate();
+        if (d1 < 10) {
+        d1 = '0' + d1;
+        }
+        if (m1 < 10) {
+        m1 = '0' + m1;
+        }
+        document.getElementById('expedate').value = (y1+'-' + m1 + '-'+d1);
+        $("#expedate").prop('readonly', true);
+    {% else %}
+        $("#expedate").prop('readonly', false);
+    {% endif %}
+
+    var t1=new Date();
+    var d1=t1.getDate();
+    var m1=t1.getMonth()+1;
+    var y1=t1.getFullYear();
+    if(d1<10){
+        d1='0'+d1
+    }
+    if(m1<10){
+        m1='0'+m1
+    }
+    var mindate=y1+'-'+m1+'-'+d1;
+    document.getElementById("expedate").setAttribute("min", mindate);
+
+
+    var st="{{pobj.pstatus}}"
+    if(st=='C'){
+        $('#status')[0].selectedIndex = 1;
+        $('#status').prop('disabled', true);
+    }
+    else if(st=='A'){
+       $('#status')[0].selectedIndex = 0;
+    }
+});
+</script>
+{%endblock%}

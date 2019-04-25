@@ -1,0 +1,171 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+<!-- Latest compiled and minified CSS -->
+
+{%block body %}
+
+<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script>-->
+
+		<h2 class="w3ls_head">Designation Management</h2>
+			<div class="grid_3 grid_4 w3layouts ">
+				<!--<h3 class="hdg">Headings</h3>-->
+				<div class="bs-example position-center">
+					<form action="" method="post">
+						{%csrf_token%}
+						<div class="row position-center">
+						<div class="col-md-8 position-center">
+						{% if error %}
+						<div class="alert alert-danger" id="error">
+  							<strong>Danger!</strong>{{error}}
+						</div>
+						{%elif success%}
+						<div class="alert alert-success" id="success">
+  							<strong>Success!</strong>{{success}}
+						</div>
+						{%endif%}
+						<div class="form-group">
+						<select  title="Choose Designation" class=" form-control" id="desig_select" required>
+						<option>Choose Designation</option>
+							{% for o in obj %}
+						<option>{{o.d_cd}}</option>
+							{% endfor %}
+						</select>
+						</div>
+  						<div class="form-group">
+    						<label for="cd">Designation Code</label>
+    						<input type="text" class="form-control" name="cd" id="cd" required>
+    						<!--<small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>-->
+  						</div>
+  						<div class="form-group">
+    						<label for="desc">Description</label>
+    						<input type="text" class="form-control" name="desc" id="desc" required>
+						</div>
+  						<div class="form-group">
+    						<label>Experience (From-To)</label>
+							<div class="row">
+								<div class="col-md-6">
+									<input type="number" class="form-control" name="minexp" id="minexp" min="0" required>
+
+
+								</div>
+
+								<div class="col-md-6">
+									<input type="number" class="form-control" name="maxexp" id="maxexp" min="0">
+								</div>
+    						<!--<label for="maxexp">Experience To</label>-->
+    						<!--<input type="number" class="form-control" id="maxexp">-->
+								</div>
+						</div>
+  						<div class="form-group">
+    						<!--<label for="">Role Type</label>-->
+							<select  title="Choose Role" class="form-control" id="role_select" name="role_select">
+								<option>Choose Role</option>
+  								<option>Employee</option>
+  								<option>HR</option>
+							</select>
+
+						</div>
+<!--  						<div class="form-check">
+    						<input type="checkbox" class="form-check-input" id="exampleCheck1">
+    						<label class="form-check-label" for="exampleCheck1">Check me out</label>
+  						</div>-->
+						<div class="form-group">
+							<div class="row">
+								<div class="col-md-6">
+									<button type="submit" class="btn btn-primary form-control" value="update" name="update" id="update">Update</button>
+
+								</div>
+								<div class="col-md-6">
+									<button type="submit" class="btn btn-primary form-control" value="add" name="add" id="addnew">Add New</button>
+								</div>
+							</div>
+						</div>
+						</div>
+						</div>
+					</form>
+				</div>
+			</div>
+<script>
+$(document).ready(function(){
+	$('#desig').addClass("active");
+	$( "#desig_select" ).change(function() {
+		var n=$("#desig_select")[0].selectedIndex;
+		if(n==0){
+			$('#cd').val("");
+			$('#desc').val("");
+			$('#minexp').val("");
+			$('#maxexp').val("");
+			$('#role_select')[0].selectedIndex = 0;
+		}
+		else{
+
+			var cd=$("#desig_select").val();
+			$.ajax({
+		    url: '/admin/designation/',
+		    method: 'GET',
+		    data: {
+			    cd: cd
+			},
+		    success: function(data){
+				obj=JSON.parse(data);
+				$('#cd').val(obj.d_cd);
+
+				$('#desc').val(obj.d_desc);
+				$('#minexp').val(obj.d_min);
+				$('#maxexp').val(obj.d_max);
+				if(obj.d_role==1){
+				$('#role_select')[0].selectedIndex = 1;
+				}
+				else if(obj.d_role==2){
+				$('#role_select')[0].selectedIndex = 2;
+				}
+				else{
+				$('#role_select')[0].selectedIndex = 0;
+				}
+		    }
+		  	});
+		}
+	});
+
+
+	$("#addnew").click(function(){
+		var f=0;
+        if($('#role_select')[0].selectedIndex==0){
+        alert('Please choose a role!');
+		f=1;
+        }
+        if(f==1){
+		event.preventDefault();
+        }
+    });
+
+    $("#update").click(function(){
+		var f=0;
+        if($('#role_select')[0].selectedIndex==0){
+        alert('Please choose a role!');
+		f=1;
+        }
+        if(f==1){
+		event.preventDefault();
+        }
+    });
+});
+</script>
+<!--<script type="text/javascript">
+    function preloadFunc()
+    {
+ 		document.getElementById("home").classList.remove("active");
+        document.getElementById("desig").classList.add("active");
+
+
+
+    }
+    window.onpaint = preloadFunc();
+</script>-->
+<!--<script>
+	$(window).load(function() {
+	$('a').removeClass("active");
+$('#desig').addClass("active");
+});
+</script>-->
+{% endblock %}

@@ -1,0 +1,396 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+<!-- Latest compiled and minified CSS -->
+{%block body %}
+<!--      <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css"
+         rel = "stylesheet">
+      <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+      <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>-->
+<style>
+    .typo-agile{
+        background: none;
+    }
+</style>
+<h2 class="w3ls_head" style="margin-bottom: 0.5em;">Employee Registration</h2>
+<div class="grid_3 grid_4 w3layouts ">
+    <div class="bs-example">
+       <div class="row">
+            <form action="{% url 'ultimatix:register_emp'%}" method="post">
+                {% csrf_token%}
+
+                <div class="panel-group">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"  style="text-align:left;">Personal Information</div>
+                        <div class="panel-body">
+                                {% if error %}
+                                <div class="form-group row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-8">
+                                        <div class="alert alert-danger" id="error">
+                                            <strong>Danger!</strong>{{error}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                {% elif success %}
+                                <div class="form-group row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-8">
+                                        <div class="alert alert-success" id="success">
+                                            <strong>Success!</strong>{{success}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                {%endif%}
+
+
+                                <div class="form-group row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-4">
+                                        <label for="fname">First Name</label>
+                                        <input type="text" class="form-control" name="fname" id="fname"  required>
+                                    </div>
+                                    <div class="col-md-4">
+                                            <label for="lname">Last Name</label>
+                                            <input type="text" class="form-control" name="lname" id="lname" required>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-4">
+                                        <label for="surname">Father's Name</label>
+                                        <input type="text" class="form-control" name="surname" id="surname" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="dob">Date of Birth</label>
+                                        <input type="date" class="form-control" name="dob" id="dob" required>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-2"></div>
+                                    <div class="col-md-4">
+                                        <label for="bgroup">Blood Group</label>
+                                        <select  title="Choose Blood Group" class="form-control" name="bgroup" id="bgroup" >
+						                    <!--<option>Choose Blood Group</option>-->
+                                            <option>A+</option>
+                                            <option>A-</option>
+                                            <option>B+</option>
+                                            <option>B-</option>
+                                            <option>AB+</option>
+                                            <option>AB-</option>
+                                            <option>O+</option>
+                                            <option>O-</option>
+						                </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="mstatus">Marital Status</label>
+                                        <select  title="Choose Marital Status" class="form-control" name="mstatus" id="mstatus" >
+                                        <!--<option>Choose Marital Status</option>-->
+                                        <option value="S">Single</option>
+                                        <option value="M">Married</option>
+                                        <option value="W">Widowed</option>
+                                        <option value="D">Divorced</option>
+                                    </select>
+                                    </div>
+                                    <div class="col-md-2"></div>
+                                </div>
+                            <div class="form-group row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-4">
+
+                                    <label for="nationality">Nationality</label>
+                                    <input type="text" class="form-control" name="nationality" id="nationality" value="Indian" required>
+                                </div>
+                                <div class="col-md-4">
+
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-4">
+                                    <div class="checkbox">
+                                        <label for="chk_disb">
+                                        <input type="checkbox" value="Y" id="chk_disb" name="chk_disb">
+                                        <b>Disabled</b>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+
+                                    <label for="male">Male</label>
+                                    <input type="radio" name="gender" id="male" value="M" checked>
+                                    <label for="female">Female</label>
+                                    <input type="radio" name="gender" id="female" value="F">
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-group">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"  style="text-align:left;">Contact Information</div>
+                        <div class="panel-body">
+
+                            <div class="form-group row">
+                                <!--<div class="col-md-2"></div>-->
+                                <div class="col-md-5">
+                                    <div class="panel-group">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"  style="text-align:left;">Permanent Address</div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="paddr1">Address Line 1</label>
+                                                        <input type="text" class="form-control" name="paddr1" id="paddr1" required>
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="paddr2">Address Line 2</label>
+                                                        <input type="text" class="form-control" name="paddr2" id="paddr2" required>
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="paddr3">Address Line 3</label>
+                                                        <input type="text" class="form-control" name="paddr3" id="paddr3">
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                            </div>
+					                    </div>
+				                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label for="chk_addr">
+                                                <input type="checkbox" value="Y" id="chk_addr" name="chk_addr">
+                                                <b>Check if same</b>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="panel-group">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"  style="text-align:left;">Current Address</div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="caddr1">Address Line 1</label>
+                                                        <input type="text" class="form-control" name="caddr1" id="caddr1">
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="caddr2">Address Line 2</label>
+                                                        <input type="text" class="form-control" name="caddr2" id="caddr2">
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="caddr3">Address Line 3</label>
+                                                        <input type="text" class="form-control" name="caddr3" id="caddr3">
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                            </div>
+					                    </div>
+				                    </div>
+                                </div>
+                                <!--<div class="col-md-2"></div>-->
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-1"></div>
+                                <div class="col-md-5">
+                                    <label for="email1">E-mail</label>
+                                    <input type="email" class="form-control" name="email" id="email1" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email !" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="mnumber">Mobile Number</label>
+                                    <input type="text" class="form-control" name="mnumber" id="mnumber" pattern="(7|8|9)\d{9}" title="Please enter the 10 digit mobile number starts with 7/8/9 !" required>
+                                </div>
+                                <div class="col-md-1"></div>
+                            </div>
+                        </div>
+					</div>
+				</div>
+                <div class="panel-group">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"  style="text-align:left;">Professional Information</div>
+                        <div class="panel-body">
+                            <div class="form-group row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-4">
+                                    <label for="doj">Date of Joining</label>
+                                    <input type="date" class="form-control" name="doj" id="doj" required>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="qfn">Qualification</label>
+                                    <input type="text" class="form-control" name="qfn" id="qfn" required>
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-4">
+                                    <label for="prev_exp">Previous Experience (in years)</label>
+                                    <input type="number" class="form-control" name="prev_exp" id="prev_exp" step=".01">
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="prev_cmp">Previous Company</label>
+                                    <input type="text" class="form-control" name="prev_cmp" id="prev_cmp" >
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-2"></div>
+                                <div class="col-md-4">
+                                    <label for="desig_select">Employee Designation</label>
+                                    <select  title="Choose Designation" class=" form-control" id="desig_select" name="desig_select" required>
+						                <option>Choose Designation</option>
+							                {% for obj in dobj %}
+						                <option>{{obj.d_cd}}</option>
+							                {% endfor %}
+						                </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="salary">Salary (CTC)</label>
+                                    <input type="number" class="form-control" name="salary" id="salary" step=".01" required>
+                                </div>
+                                <div class="col-md-2"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-5"></div>
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary form-control" value="register" name="register" id="register" >Submit</button>
+                                </div>
+                                <div class="col-md-5"></div>
+
+                            </div>
+                        </div>
+					</div>
+				</div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+$(document).ready(function(){
+	$('#emp').addClass("active");
+	$('#emp_reg').addClass("active");
+	$("#chk_addr").click(function(){
+       if ($('#chk_addr').is(":checked")){
+           $('#caddr1').val($('#paddr1').val());
+           $('#caddr2').val($('#paddr2').val());
+           $('#caddr3').val($('#paddr3').val());
+       }
+       else{
+           $('#caddr1').val('');
+           $('#caddr2').val('');
+           $('#caddr3').val('' );
+       }
+    });
+
+    var t=new Date()
+    var d=t.getDate();
+    var m=t.getMonth()+1;
+    var y=t.getFullYear()-20;
+    if(d<10){
+        d='0'+d
+    }
+    if(m<10){
+        m='0'+m
+    }
+    var maxdate=y+'-'+m+'-'+d;
+    document.getElementById("dob").setAttribute("max", maxdate);
+
+    var t1=new Date(new Date().setDate(new Date().getDate()-28));
+    var d1=t1.getDate();
+    var m1=t1.getMonth()+1;
+    var y1=t1.getFullYear();
+    if(d1<10){
+        d1='0'+d1
+    }
+    if(m1<10){
+        m1='0'+m1
+    }
+    var mindate=y1+'-'+m1+'-'+d1;
+    document.getElementById("doj").setAttribute("min", mindate);
+
+    var t2=new Date();
+    var d2=t2.getDate();
+    var m2=t2.getMonth()+1;
+    var y2=t2.getFullYear();
+    if(d2<10){
+        d2='0'+d2
+    }
+    if(m2<10){
+        m2='0'+m2
+    }
+    var maxdate2=y2+'-'+m2+'-'+d2;
+    document.getElementById("doj").setAttribute("max", maxdate2);
+
+    $("#register").click(function(){
+		var f=0;
+
+        if($('#desig_select')[0].selectedIndex==0){
+        alert('Please choose a designation for employee !');
+		f=1;
+        }
+            if(f!=1){
+                if(($('#prev_exp').val().trim()!="")&&($('#prev_cmp').val().trim()=="")){
+                alert('Please provide previous company name');
+                f=1;
+                }else if(($('#prev_exp').val().trim()=="")&&($('#prev_cmp').val().trim()!="")){
+                alert('Please provide previous experience');
+                f=1;
+                }
+            }
+
+
+        if(f==1){
+		event.preventDefault();
+        }
+    });
+
+
+
+});
+</script>
+{% endblock %}

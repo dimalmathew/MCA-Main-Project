@@ -1,0 +1,116 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+<!-- Latest compiled and minified CSS -->
+
+{%block body %}
+<h2 class="w3ls_head">Project Roles Management</h2>
+<div class="grid_3 grid_4 w3layouts ">
+        <!--<h3 class="hdg">Headings</h3>-->
+    <div class="bs-example position-center">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-10">
+                        <form action="{%url 'ultimatix:roles_mngt' %}" method="post" class="position-center" id="roles_form" project-roles-url="{%url 'ultimatix:roles_mngt' %}">
+                            {%csrf_token%}
+                            {% if error %}
+                            <div class="alert alert-danger" id="error">
+                                <strong>Danger!</strong>{{error}}
+                            </div>
+                            {%elif success%}
+                            <div class="alert alert-success" id="success">
+                                <strong>Success!</strong>{{success}}
+                            </div>
+                            {%endif%}
+                            <div class="form-group">
+						        <select  title="Choose Role" class="form-control" id="role_select" required>
+						        <option>Choose Role</option>
+                                    {% for o in obj %}
+						                <option>{{o.r_cd}}</option>
+							        {% endfor %}
+						        </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="role_cd">Role Code</label>
+                                <input type="text" class="form-control" name="role_cd" id="role_cd" required>
+                            </div>
+                            <div class="form-group">
+    						    <label for="role_desc">Description</label>
+    						    <input type="text" class="form-control" name="role_desc" id="role_desc" required>
+						    </div>
+                            <div class="form-group">
+                                <div class="checkbox">
+                                    <label for="chk_act">
+                                        <input type="checkbox" value="Y" id="chk_act" name="chk_act">
+                                        <b>Active</b>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
+								<div class="col-md-6">
+									<button type="submit" class="btn btn-primary form-control" value="update" name="update" id="update">Update</button>
+
+								</div>
+								<div class="col-md-6">
+									<button type="submit" class="btn btn-primary form-control" value="add" name="add" id="addnew">Add New</button>
+								</div>
+							</div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="col-md-1"></div>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+$(document).ready(function(){
+    $('#project').addClass("active");
+    $('#roles').addClass("active");
+
+    $( "#role_select" ).change(function() {
+        var n=$("#role_select")[0].selectedIndex;
+
+        if(n==0){
+			$('#role_cd').val("");
+			$('#role_desc').val("");
+			$('#chk_act').prop('checked', false);
+		}
+		else{
+		    var cd=$("#role_select").val();
+            var url = $("#roles_form").attr("project-roles-url");
+
+            $.ajax({
+                url: url,
+                method: 'GET',
+                data: {
+			        cd: cd
+			    },
+			    success: function(data){
+			    obj=JSON.parse(data);
+                $('#role_cd').val(obj.r_cd);
+				$('#role_desc').val(obj.r_desc);
+				if(obj.r_active=='Y'){
+				$('#chk_act').prop('checked', true);
+				}
+				else{
+				$('#chk_act').prop('checked', false);
+				}
+			    }
+
+            })
+
+		}
+    });
+});
+</script>
+{% endblock %}

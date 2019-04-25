@@ -1,0 +1,96 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<h2 class="w3ls_head">Project Creation</h2>
+<div class="grid_3 grid_4 w3layouts position-center">
+<!--<h1>{{eid}}</h1>-->
+    <div class="bs-example">
+        <form action="{% url 'ultimatix:create_project' %}" method="post">
+            {% csrf_token%}
+            {% if error %}
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="alert alert-danger" id="error">
+                        <strong>Danger!</strong>{{error}}
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {% elif success %}
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="alert alert-success" id="success">
+                        <strong>Success!</strong>{{success}}
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {%endif%}
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="tle">Name</label>
+                    <input type="text" class="form-control" name="tle" id="tle" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="desc">Description</label>
+                    <input type="text" class="form-control" name="desc" id="desc" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="sdate">Start Date</label>
+                    <input type="date" class="form-control" name="sdate" id="sdate" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="expedate">End Date (Expected)</label>
+                    <input type="date" class="form-control" name="expedate" id="expedate" >
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="crtd">Created By</label>
+                    <input type="text" class="form-control" name="crtd" id="crtd" value="{{efname}}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="client">Client</label>
+                    <input type="text" class="form-control" name="client" id="client" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-10">
+                        <button type="submit" class="btn btn-primary form-control" value="create" name="create" id="create" >Create Project</button>
+                    </div>
+                    <div class="col-md-1"></div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+	$('#project').addClass("active");
+	$('#crt_project').addClass("active");
+
+	var t1=new Date();
+    var d1=t1.getDate();
+    var m1=t1.getMonth()+1;
+    var y1=t1.getFullYear();
+    if(d1<10){
+        d1='0'+d1
+    }
+    if(m1<10){
+        m1='0'+m1
+    }
+    var mindate=y1+'-'+m1+'-'+d1;
+    document.getElementById("sdate").setAttribute("min", mindate);
+    document.getElementById("expedate").setAttribute("min", mindate);
+});
+</script>
+{%endblock%}

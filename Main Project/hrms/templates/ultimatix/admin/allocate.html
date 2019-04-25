@@ -1,0 +1,118 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<h2 class="w3ls_head">Employee Allocation</h2>
+<div class="grid_3 grid_4 w3layouts position-center">
+<!--<h1>{{eid}}</h1>-->
+    <div class="bs-example">
+        <form action="#" method="post">
+            {% csrf_token%}
+            {% if error %}
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="alert alert-danger" id="error">
+                        <strong>Danger!</strong>{{error}}
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {% elif success %}
+            <div class="form-group row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <div class="alert alert-success" id="success">
+                        <strong>Success!</strong>{{success}}
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+            </div>
+            {%endif%}
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="project_select">Choose Project</label>
+                </div>
+                <div class="col-md-6">
+                    <select  title="Choose Project" class="form-control" name="project_select" id="project_select" required>
+                        {% for p in pobj%}
+                        <option value="{{p.ptitle}}">{{p.pid}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="pname">Name</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="pname" id="pname" disabled>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="desig_select">Choose Designation</label>
+                </div>
+                <div class="col-md-6">
+
+                    <select  title="Choose Designation" class="form-control" name="desig_select" id="desig_select" required>
+                        <option value="0">Select</option>
+                        {% for d in dobj%}
+                        <option value="{{d.d_id}}">{{d.d_cd}}</option>
+                        {%endfor%}
+                    </select>
+
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="emp_select">Employee</label>
+                </div>
+                <div class="col-md-6">
+                    <select  title="Choose Employee" class="form-control" name="emp_select" id="emp_select" required>
+                        {% for e in eobj%}
+                        <option>{{e.e_id}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="role_select">Project Role</label>
+                </div>
+                <div class="col-md-6">
+                    <select  title="Choose Employee" class="form-control" name="role_select" id="role_select" required>
+                        {% for r in robj%}
+                        <option value="{{r.r_id}}">{{r.r_cd}}</option>
+                        {% endfor%}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-10">
+                        <button type="submit" class="btn btn-primary form-control" value="submit" name="submit" id="submit" >Allocate</button>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+	$('#project').addClass("active");
+	$('#emp_alloc').addClass("active");
+
+    $('#pname').val(($("#project_select").val()));
+    $("#project_select").change(function(){
+	    $('#pname').val(($("#project_select").val()));
+	});
+
+
+});
+</script>
+{%endblock%}
