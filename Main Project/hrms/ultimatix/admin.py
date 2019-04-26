@@ -43,3 +43,8 @@ class Project_admin(admin.ModelAdmin):
     list_display = ['pid','ptitle','pdesc','psdate','pexpedate','pedate','pcrtd','pclient','powner','pstatus']
 
 admin.site.register(Project,Project_admin)
+
+class Project_members_admin(admin.ModelAdmin):
+    list_display = ['pmid','pid','eid','rid','pmsdate','pmedate','pmstatus']
+
+admin.site.register(Project_members,Project_members_admin)

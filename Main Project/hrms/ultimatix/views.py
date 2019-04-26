@@ -430,24 +430,52 @@ def allocate_view(request):
         eid = request.POST.get('emp_select')
         rid=request.POST.get('role_select')
         sdate=str(datetime.datetime.now())
-        return HttpResponse(pid+eid+rid)
-    else:
-        pobj=Project.objects.all().exclude(pstatus='C')
-        dobj=Designation.objects.all().exclude(d_cd='SYSADMIN')
+
         cursor = connection.cursor()
         sql = """
-        select e_id from ultimatix_employee where e_id in(select es.ed_eid_id from 
-        ultimatix_employee_desig es where es.ed_did_id!='16' and es.ed_status='Y') and 
-        e_status='Y' order by e_id
+        select eid_id from ultimatix_project_members where eid_id=%s and pid_id=%s 
+        and pmstatus='Y'
         """
-        cursor.execute(sql)
+        cursor.execute(sql,[eid,pid])
         res=cursor.fetchall()
-        res_list=[]
-        for r in res:
-            t=(r[0])
-            res_list.append(t)
-        eobj=json.dumps(res_list)
-        #eobj=Employee.objects.all().exclude(e_id='1022890')
-        robj=Project_roles.objects.all().exclude(r_active='N')
+        print('result : '+str(res))
+        cursor.close()
 
-        return render(request,'ultimatix/admin/allocate.html',{'pobj':pobj,'dobj':dobj,'eobj':eobj,'robj':robj})
+        '''errobj=Project_members.objects.get(pid=Project.objects.get(pid=pid)
+                                           ,eid=Employee.objects.get(e_id=eid),
+                                           pmstatus='Y')'''
+        if res:
+            result=default_allocate_view()
+            return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],'error':' Employee is already allocated !'})
+        else:
+            ob = Project_members.objects.create(pid=Project.objects.get(pid=pid),
+                                            eid=Employee.objects.get(e_id=eid),
+                                            rid=Project_roles.objects.get(r_id=rid),
+                                            pmsdate=sdate,pmstatus='Y')
+            ob.save()
+            result=default_allocate_view()
+            return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],'success':' Data saved successfully !'})
+    else:
+
+        result=default_allocate_view()
+        return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3]})
+
+def default_allocate_view():
+    pobj = Project.objects.all().exclude(pstatus='C')
+    dobj = Designation.objects.all().exclude(d_cd='SYSADMIN')
+    cursor = connection.cursor()
+    sql = """
+    select e_id from ultimatix_employee where e_id in(select es.ed_eid_id from 
+    ultimatix_employee_desig es where es.ed_did_id!='16' and es.ed_status='Y') and 
+    e_status='Y' order by e_id
+    """
+    cursor.execute(sql)
+    res = cursor.fetchall()
+    res_list = []
+    for r in res:
+        t = (r[0])
+        res_list.append(t)
+    eobj = json.dumps(res_list)
+    robj = Project_roles.objects.all().exclude(r_active='N')
+    result=[pobj,dobj,eobj,robj]
+    return result
