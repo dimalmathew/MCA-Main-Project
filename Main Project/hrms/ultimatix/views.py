@@ -398,9 +398,56 @@ def updtproj_view(request,pid):
 
 
 def allocate_view(request):
-    pobj=Project.objects.all().exclude(pstatus='C')
-    dobj=Designation.objects.all().exclude(d_cd='SYSADMIN')
-    eobj=Employee.objects.all().exclude(e_id='1022890')
-    robj=Project_roles.objects.all().exclude(r_active='N')
+    if request.is_ajax() and request.GET:
+        desid = request.GET.get('desid')
+        cursor = connection.cursor()
+        #print('desid : '+desid)
+        if int(desid)!=0:
+            #print('desid not 0')
+            sql = """
+            select e_id from ultimatix_employee where e_id in(select es.ed_eid_id from 
+            ultimatix_employee_desig es where es.ed_did_id=%s and es.ed_status='Y') and 
+            e_status='Y' order by e_id
+            """
+            cursor.execute(sql,[desid])
+        else:
+            #print('desid 0')
+            sql = """
+            select e_id from ultimatix_employee where e_id in(select es.ed_eid_id from 
+            ultimatix_employee_desig es where es.ed_did_id!='16' and es.ed_status='Y') and 
+            e_status='Y' order by e_id
+            """
+            cursor.execute(sql)
+        res=cursor.fetchall()
+        res_list=[]
+        for r in res:
+            t=(r[0])
+            res_list.append(t)
+        j=json.dumps(res_list)
+        return JsonResponse(j, safe=False)
+    elif request.method=='POST':
+        pid=request.POST.get('pid')
+        eid = request.POST.get('emp_select')
+        rid=request.POST.get('role_select')
+        sdate=str(datetime.datetime.now())
+        return HttpResponse(pid+eid+rid)
+    else:
+        pobj=Project.objects.all().exclude(pstatus='C')
+        dobj=Designation.objects.all().exclude(d_cd='SYSADMIN')
+        cursor = connection.cursor()
+        sql = """
+        select e_id from ultimatix_employee where e_id in(select es.ed_eid_id from 
+        ultimatix_employee_desig es where es.ed_did_id!='16' and es.ed_status='Y') and 
+        e_status='Y' order by e_id
+        """
+        cursor.execute(sql)
+        res=cursor.fetchall()
+        res_list=[]
+        for r in res:
+            t=(r[0])
+            res_list.append(t)
+        eobj=json.dumps(res_list)
+        #eobj=Employee.objects.all().exclude(e_id='1022890')
+        robj=Project_roles.objects.all().exclude(r_active='N')
 
-    return render(request,'ultimatix/admin/allocate.html',{'pobj':pobj,'dobj':dobj,'eobj':eobj,'robj':robj})
+        return render(request,'ultimatix/admin/allocate.html',{'pobj':pobj,'dobj':dobj,'eobj':eobj,'robj':robj})

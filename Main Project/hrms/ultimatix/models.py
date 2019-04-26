@@ -46,7 +46,7 @@ class Employee(models.Model):
 
     e_doj=models.DateField(null=True,blank=True)
     e_qfn=models.CharField(max_length=50,null=True,blank=True)
-    e_prev_exp=models.IntegerField(null=True,blank=True)
+    e_prev_exp=models.FloatField(null=True,blank=True)
     e_prev_cmp=models.CharField(max_length=50,null=True,blank=True)
 
     e_cl=models.FloatField(null=True,blank=True)

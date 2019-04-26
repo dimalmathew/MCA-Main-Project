@@ -5,7 +5,7 @@
 <div class="grid_3 grid_4 w3layouts position-center">
 <!--<h1>{{eid}}</h1>-->
     <div class="bs-example">
-        <form action="#" method="post">
+        <form action="{% url 'ultimatix:emp_allocate'%}" method="post" id="allocate_form" allocate-emp-url="{%url 'ultimatix:emp_allocate' %}">
             {% csrf_token%}
             {% if error %}
             <div class="form-group row">
@@ -38,7 +38,9 @@
                         <option value="{{p.ptitle}}">{{p.pid}}</option>
                         {%endfor%}
                     </select>
+                    <input type="hidden" value="" id="pid" name="pid">
                 </div>
+
             </div>
             <div class="form-group row">
                 <div class="col-md-6">
@@ -55,7 +57,7 @@
                 <div class="col-md-6">
 
                     <select  title="Choose Designation" class="form-control" name="desig_select" id="desig_select" required>
-                        <option value="0">Select</option>
+                        <option value="0">All</option>
                         {% for d in dobj%}
                         <option value="{{d.d_id}}">{{d.d_cd}}</option>
                         {%endfor%}
@@ -69,9 +71,9 @@
                 </div>
                 <div class="col-md-6">
                     <select  title="Choose Employee" class="form-control" name="emp_select" id="emp_select" required>
-                        {% for e in eobj%}
+<!--                        {% for e in eobj%}
                         <option>{{e.e_id}}</option>
-                        {%endfor%}
+                        {%endfor%}-->
                     </select>
                 </div>
             </div>
@@ -108,11 +110,36 @@ $(document).ready(function(){
 	$('#emp_alloc').addClass("active");
 
     $('#pname').val(($("#project_select").val()));
+    $('#pid').val($('#project_select').children("option:selected").text());
     $("#project_select").change(function(){
 	    $('#pname').val(($("#project_select").val()));
+	    $('#pid').val($(this).children("option:selected").text());
 	});
 
+    obj1=JSON.parse("{{eobj}}");
+    $("#emp_select").empty();
+    for(var i=0;i<obj1.length;i++){
+    $("#emp_select").append(new Option(obj1[i]));
+    }
 
+    $("#desig_select").change(function(){
+	    var desid=$("#desig_select").val();
+        var url = $("#allocate_form").attr("allocate-emp-url");
+        $.ajax({
+		    url: url,
+		    method: 'GET',
+		    data: {
+			    desid: desid
+			},
+		    success: function(data){
+				obj=JSON.parse(data);
+                $("#emp_select").empty();
+                for(var i=0;i<obj.length;i++){
+                    $("#emp_select").append(new Option(obj[i]));
+                }
+		    }
+        });
+	});
 });
 </script>
 {%endblock%}
