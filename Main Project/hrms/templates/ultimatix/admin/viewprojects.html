@@ -35,7 +35,7 @@
         <tbody>
             {% for p in pobj %}
             <tr>
-                <td style="color:black;">{{p.pid}}</td>
+                <td style="color:black;"><a href="{% url 'ultimatix:project_members' p.pid %}">{{p.pid}}</a></td>
                 <td style="color:black;">{{p.ptitle}}</td>
                 <td style="color:black;">{{p.psdate}}</td>
                 <td style="color:black;">{{p.pexpedate}}</td>

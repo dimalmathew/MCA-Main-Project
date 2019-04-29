@@ -9,10 +9,14 @@ path('admin/roles/',views.roles_view,name='roles_mngt'),
 path('admin/regemp/',views.regemp_view,name='register_emp'),
 path('admin/viewemp/',views.viewemp_view,name='view_emp'),
 path('admin/viewemp/<int:pk>',views.updtemp_view,name='updt_emp'),
-path('admin/create_project/',views.crtprj_view,name='create_project'),
-path('admin/viewprojects',views.proejcts_view,name='view_project'),
+path('admin/createproject/',views.crtprj_view,name='create_project'),
+path('admin/viewprojects/',views.proejcts_view,name='view_project'),
+path('admin/viewprojects/<int:pid>',views.proejctmembers_view,name='project_members'),
 path('admin/viewprojects/updt/<int:pid>',views.updtproj_view,name='updt_project'),
 path('admin/allocate/',views.allocate_view,name='emp_allocate'),
+path('admin/deallocate/<int:pmid>',views.deallocate_view,name='emp_deallocate'),
+path('ultimatix/attendance/',views.mark_attendance,name="mark_attendance"),
 path('',views.show_login,name="show_login"),
-#path('admin/viewemp/updt/<int:pk>/',views.updtemp_view,name='updt_emp'),
+
+
 ]
