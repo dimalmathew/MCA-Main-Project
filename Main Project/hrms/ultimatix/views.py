@@ -1,11 +1,14 @@
 import datetime
 import json
+import os
 
+import openpyxl
 from django.db import connection,DatabaseError
 from django.db.models import Max
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from .models import *
+from datetime import datetime
 from ultimatix import config
 # Create your views here.
 def dictfetchall(cursor):
@@ -335,6 +338,7 @@ def crtprj_view(request):
             else:
                 obj = Project.objects.create(ptitle=title, pdesc=desc, psdate=sdate, pcrtd=crtd,pclient=client, powner=Employee.objects.get(e_id=eid), pstatus='A')
                 obj.save()
+                id_max = Project.objects.all().aggregate(Max('pid'))['pid__max']
                 ob1=Project_members.objects.create(pid=Project.objects.get(pid=id_max),
                                             eid=Employee.objects.get(e_id=eid),
                                             rid=Project_roles.objects.get(r_id='13'),
@@ -426,7 +430,6 @@ def allocate_view(request):
             e_status='Y' order by e_id
             """
             cursor.execute(sql,[desid])
-            cursor.close()
         else:
             #print('desid 0')
             sql = """
@@ -442,6 +445,7 @@ def allocate_view(request):
             res_list.append(t)
         j=json.dumps(res_list)
         cursor.close()
+        print('result : '+str(j))
         return JsonResponse(j, safe=False)
     elif request.method=='POST':
         pid=request.POST.get('pid')
@@ -494,7 +498,7 @@ def default_allocate_view():
         t = (r[0])
         res_list.append(t)
     eobj = json.dumps(res_list)
-    robj = Project_roles.objects.all().exclude(r_active='N')
+    robj = Project_roles.objects.all().exclude(r_active='N').exclude(r_cd='OWN')
     result=[pobj,dobj,eobj,robj]
     cursor.close()
     return result
@@ -544,8 +548,73 @@ def proejctmembers_view(request,pid):
 
 
 def mark_attendance(request):
+    if request.method=='POST':
+        if request.POST.get('validate'):
+            adate=request.POST.get('adate')
+            fname=request.FILES["myFile"]
+            ext = os.path.splitext(fname.name)[1]
+            #print("file name : "+str(fname))
+            if ext.lower() in ['.xlsx']:
+                wb = openpyxl.load_workbook(fname)
+                worksheet = wb.worksheets[0]
+                #print(str(worksheet.cell(row=1,column=1).value))
+                #data = list()
+                excel_list=[]
+                for i in range(1,worksheet.max_row+1):
+                    if i==1:
+                        continue
+                    data_list={}
+                    data_list['eid']=str(worksheet.cell(row=i,column=1).value)
+                    data_list['swipe']=str(worksheet.cell(row=i,column=2).value)
+                    ip = str(worksheet.cell(row=i, column=2).value)
+                    temp = ip.split(',')
+                    l = len(temp)
+                    # print(len)
+                    if l % 2 != 0:
+                        temp.pop(-1)
+                    # print(temp)
+                    # print("*****************")
+                    temp_time_hldr = []
+                    for i in temp:
+                        datetime_object = datetime.strptime(i, '%H:%M')
+                        temp_time_hldr.append(datetime_object)
 
-    return render(request,'ultimatix/attendance.html')
+                    # print(temp_time_hldr)
+
+                    odd_place = temp_time_hldr[::2]
+                    even_place = temp_time_hldr[1:][::2]
+                    # print(odd_place)
+                    # print(even_place)
+
+                    total = []
+
+                    for i, j in zip(even_place, odd_place):
+                        diff = i - j
+                        total.append(diff)
+
+                    total_time = datetime(1900, 1, 1, 0, 0)
+                    for i in total:
+                        total_time = total_time + i
+
+                    print(total_time)
+
+
+
+                    excel_list.append(data_list)
+                return HttpResponse(str(adate)+" "+str(excel_list))
+                #return render(render,'ultimatix/upload_attendance.html',{'adate':adate})
+                return redirect('ultimatix:upload_attendance', adate)
+            else:
+                return render(request, 'ultimatix/attendance.html',{'error':' Invalid File Format !'})
+        elif request.POST.get('submit'):
+            return HttpResponse('sumbit')
+    else:
+        return render(request,'ultimatix/attendance.html')
+
+
+
+def upload_attendance(request,adate):
+    return render(request,'ultimatix/upload_attendance.html',{'adate':adate})
 
 def deallocate_view(request,pmid):
     if pmid:

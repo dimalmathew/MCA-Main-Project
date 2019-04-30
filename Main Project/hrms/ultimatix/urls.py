@@ -16,6 +16,7 @@ path('admin/viewprojects/updt/<int:pid>',views.updtproj_view,name='updt_project'
 path('admin/allocate/',views.allocate_view,name='emp_allocate'),
 path('admin/deallocate/<int:pmid>',views.deallocate_view,name='emp_deallocate'),
 path('ultimatix/attendance/',views.mark_attendance,name="mark_attendance"),
+path('ultimatix/attendance/<str:adate>',views.upload_attendance,name="upload_attendance"),
 path('',views.show_login,name="show_login"),
 
 
