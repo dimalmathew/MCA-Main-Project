@@ -1,1 +1,39 @@
-<h1>{{adate}}</h1>
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<h2 class="w3ls_head">Attendance Details</h2>
+<div class="grid_3 grid_4 w3layouts">
+    <h3 class="hdg">Below attendance details were added successfully.</h3>
+    <div class="bs-example">
+    <table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th style="color:black;">Employee Id</th>
+                <th style="color:black;">Swipe Data</th>
+                <th style="color:black;">Total Working Hours</th>
+                <th style="color:black;">Attendance</th>
+            </tr>
+        </thead>
+        <tbody>
+            {%for r in excel_list%}
+            <tr>
+                <td style="color:black;">{{r.eid}}</td>
+                <td style="color:black;">{{r.swipes}}</td>
+                <td style="color:black;">{{r.total_working}}</td>
+                <td style="color:black;">{{r.attendance}}</td>
+            </tr>
+        {%endfor%}
+        </tbody>
+    </table>
+    <a href="" class="btn btn-primary">Back</a>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+	$('#attendance').addClass("active");
+	$('#attendance_mark').addClass("active");
+});
+</script>
+{%endblock%}
+

@@ -553,57 +553,58 @@ def mark_attendance(request):
             adate=request.POST.get('adate')
             fname=request.FILES["myFile"]
             ext = os.path.splitext(fname.name)[1]
-            #print("file name : "+str(fname))
             if ext.lower() in ['.xlsx']:
                 wb = openpyxl.load_workbook(fname)
                 worksheet = wb.worksheets[0]
-                #print(str(worksheet.cell(row=1,column=1).value))
-                #data = list()
-                excel_list=[]
-                for i in range(1,worksheet.max_row+1):
-                    if i==1:
-                        continue
-                    data_list={}
-                    data_list['eid']=str(worksheet.cell(row=i,column=1).value)
-                    data_list['swipe']=str(worksheet.cell(row=i,column=2).value)
-                    ip = str(worksheet.cell(row=i, column=2).value)
-                    temp = ip.split(',')
-                    l = len(temp)
-                    # print(len)
-                    if l % 2 != 0:
-                        temp.pop(-1)
-                    # print(temp)
-                    # print("*****************")
-                    temp_time_hldr = []
-                    for i in temp:
-                        datetime_object = datetime.strptime(i, '%H:%M')
-                        temp_time_hldr.append(datetime_object)
+                try:
+                    excel_list=[]
+                    for i in range(1,worksheet.max_row+1):
+                        if i==1:
+                            continue
+                        data_list={}
+                        data_list['eid']=str(worksheet.cell(row=i,column=1).value)
+                        data_list['swipes']=str(worksheet.cell(row=i,column=2).value)
+                        ip = str(worksheet.cell(row=i, column=2).value)
+                        temp = ip.split(',')
+                        l = len(temp)
+                        if l % 2 != 0:
+                            temp.pop(-1)
+                        temp_time_hldr = []
+                        for i in temp:
+                            datetime_object = datetime.strptime(i, '%H:%M')
+                            temp_time_hldr.append(datetime_object)
+                            odd_place = temp_time_hldr[::2]
+                            even_place = temp_time_hldr[1:][::2]
+                            total = []
+                            for i, j in zip(even_place, odd_place):
+                                diff = i - j
+                                total.append(diff)
+                            total_time = datetime(1900, 1, 1, 0, 0)
+                            for i in total:
+                                total_time = total_time + i
+                        data_list['total_working']=total_time.strftime('%H:%M')
+                        hours, minutes = (total_time.strftime('%H:%M')).split(':')
+                        tot=int(hours) * 60 + int(minutes)
+                        if tot>=(9*60):
+                            data_list['attendance']='P'
+                        elif tot>=(4.5*60):
+                            data_list['attendance'] = 'H'
+                        else:
+                            data_list['attendance'] = 'A'
+                        excel_list.append(data_list)
+                        #print('adate : '+adate)
+                        temp=Timesheet.objects.filter(eid=Employee.objects.get(e_id=data_list['eid']),tdate=adate)
+                        if not temp:
+                            ob=Timesheet.objects.create(eid=Employee.objects.get(e_id=data_list['eid']),tdate=adate,thours=data_list['total_working'],tstate=data_list['attendance'])
+                            ob.save()
+                        else:
+                            Timesheet.objects.filter(eid=Employee.objects.get(e_id=data_list['eid']), tdate=adate).update(thours=data_list['total_working'],tstate=data_list['attendance'])
 
-                    # print(temp_time_hldr)
-
-                    odd_place = temp_time_hldr[::2]
-                    even_place = temp_time_hldr[1:][::2]
-                    # print(odd_place)
-                    # print(even_place)
-
-                    total = []
-
-                    for i, j in zip(even_place, odd_place):
-                        diff = i - j
-                        total.append(diff)
-
-                    total_time = datetime(1900, 1, 1, 0, 0)
-                    for i in total:
-                        total_time = total_time + i
-
-                    print(total_time)
-
-
-
-                    excel_list.append(data_list)
-                return HttpResponse(str(adate)+" "+str(excel_list))
-                #return render(render,'ultimatix/upload_attendance.html',{'adate':adate})
-                return redirect('ultimatix:upload_attendance', adate)
+                    return render(request,'ultimatix/upload_attendance.html',{'adate':adate,'excel_list':excel_list})
+                except Exception as e:
+                    print('Exception : '+str(e))
+                    return render(request, 'ultimatix/attendance.html', {'error': ' Some error occured while processing the data !','e':e})
+                #return redirect('ultimatix:upload_attendance', adate)
             else:
                 return render(request, 'ultimatix/attendance.html',{'error':' Invalid File Format !'})
         elif request.POST.get('submit'):
@@ -616,6 +617,8 @@ def mark_attendance(request):
 def upload_attendance(request,adate):
     return render(request,'ultimatix/upload_attendance.html',{'adate':adate})
 
-def deallocate_view(request,pmid):
+def calendar_view(request,eid):
+    return HttpResponse('success')
+'''def deallocate_view(request,pmid):
     if pmid:
-        return render(request,'ultimatix/admin/deallocate.html',{'pmid':pmid})
+        return render(request,'ultimatix/admin/deallocate.html',{'pmid':pmid})'''

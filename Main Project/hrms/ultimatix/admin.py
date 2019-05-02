@@ -48,3 +48,8 @@ class Project_members_admin(admin.ModelAdmin):
     list_display = ['pmid','pid','eid','rid','pmsdate','pmedate','pmstatus']
 
 admin.site.register(Project_members,Project_members_admin)
+
+class Timesheet_admin(admin.ModelAdmin):
+    list_display = ['tid','eid','tdate','thours','tstate']
+
+admin.site.register(Timesheet,Timesheet_admin)

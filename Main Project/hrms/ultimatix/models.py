@@ -116,3 +116,15 @@ class Project_members(models.Model):
 
     def __str__(self):
         return str(self.pmid)
+
+
+class Timesheet(models.Model):
+    tid=models.AutoField(primary_key=True)
+    eid = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    tdate = models.DateField(null=True, blank=True)
+    thours=models.CharField(null=True, blank=True,max_length=10)
+    tstate=models.CharField(max_length=1)
+
+    def __str__(self):
+        return str(self.tid)
+
