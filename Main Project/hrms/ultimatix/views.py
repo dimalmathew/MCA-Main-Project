@@ -617,8 +617,13 @@ def mark_attendance(request):
 def upload_attendance(request,adate):
     return render(request,'ultimatix/upload_attendance.html',{'adate':adate})
 
-def calendar_view(request,eid):
-    return HttpResponse('success')
+
+def apply_leave(request):
+    return render(request,'ultimatix/applyleave.html')
+
+def calendar_view(request):
+    user=Employee.objects.get(e_id=config.eid)
+    return render(request,'ultimatix/calendar.html',{'user':user})
 '''def deallocate_view(request,pmid):
     if pmid:
         return render(request,'ultimatix/admin/deallocate.html',{'pmid':pmid})'''

@@ -224,17 +224,17 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
     </ul>
     &lt;!&ndash;  notification end &ndash;&gt;
 </div>-->
-<!--<div class="top-nav clearfix">
-    &lt;!&ndash;search & user info start&ndash;&gt;
+<div class="top-nav clearfix">
+    <!--search & user info start-->
     <ul class="nav pull-right top-menu">
         <li>
             <input type="text" class="form-control search" placeholder=" Search">
         </li>
-        &lt;!&ndash; user login dropdown start&ndash;&gt;
+        <!-- user login dropdown start-->
         <li class="dropdown">
             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                 <img alt="" src="{% static 'ultimatix/web/images/user.png'%}">
-                <span class="username">John Doe</span>
+                <span class="username" id="username">John Doe</span>
                 <b class="caret"></b>
             </a>
             <ul class="dropdown-menu extended logout">
@@ -243,11 +243,11 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 <li><a href="{% url 'ultimatix:show_login' %}"><i class="fa fa-key"></i> Log Out</a></li>
             </ul>
         </li>
-        &lt;!&ndash; user login dropdown end &ndash;&gt;
+        <!-- user login dropdown end -->
        
     </ul>
-    &lt;!&ndash;search & user info end&ndash;&gt;
-</div>-->
+    <!--search & user info end-->
+</div>
 </header>
 <!--header end-->
 <!--sidebar start-->
@@ -315,12 +315,12 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     </ul>
                 </li>
                 <li class="sub-menu">
-                    <a href="javascript:;">
+                    <a href="javascript:;" id="leave">
                         <i class=" fa fa-bar-chart-o"></i>
-                        <span>Charts</span>
+                        <span>Leave</span>
                     </a>
                     <ul class="sub">
-                        <li><a href="#">Chart js</a></li>
+                        <li><a id="leaveapply" href="{% url 'ultimatix:apply_leave'%}">Apply for Leave</a></li>
                         <li><a href="#">Flot Charts</a></li>
                     </ul>
                 </li>
@@ -331,7 +331,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     </a>
                     <ul class="sub">
                         <li><a id="attendance_mark" href="{% url 'ultimatix:mark_attendance'%}">Attendance Marking</a></li>
-                        <li><a id="view_calendar" href="#">View Calendar</a></li>
+                        <li><a id="view_calendar" href="{% url 'ultimatix:calendar_view'%}">View Calendar</a></li>
                     </ul>
                 </li>
                 <li class="sub-menu">

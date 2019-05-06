@@ -14,9 +14,11 @@ path('admin/viewprojects/',views.proejcts_view,name='view_project'),
 path('admin/viewprojects/<int:pid>',views.proejctmembers_view,name='project_members'),
 path('admin/viewprojects/updt/<int:pid>',views.updtproj_view,name='updt_project'),
 path('admin/allocate/',views.allocate_view,name='emp_allocate'),
-path('admin/deallocate/<int:pmid>',views.deallocate_view,name='emp_deallocate'),
+#path('admin/deallocate/<int:pmid>',views.deallocate_view,name='emp_deallocate'),
 path('ultimatix/attendance/',views.mark_attendance,name="mark_attendance"),
 path('ultimatix/attendance/<str:adate>',views.upload_attendance,name="upload_attendance"),
+path('ultimatix/applyleave/',views.apply_leave,name="apply_leave"),
+path('ultimatix/calendar/',views.calendar_view,name="calendar_view"),
 path('',views.show_login,name="show_login"),
 
 
