@@ -8,6 +8,7 @@ from django.db.models import Max
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from .models import *
+import datetime
 from datetime import datetime
 from ultimatix import config
 # Create your views here.
@@ -365,8 +366,10 @@ def show_login(request):
             if not obj:
                 config.eid = ""
                 config.efname =""
+                request.session['eid'] = None
                 return render(request, 'ultimatix/login.html',{'error':'Incorrect Employee Id or Password'})
             else:
+                request.session['eid'] = eid
                 config.eid = Employee.objects.filter(e_id=eid, e_pwd=pwd).first().e_id
                 config.efname=Employee.objects.filter(e_id=eid, e_pwd=pwd).first().e_fname
                 return redirect('ultimatix:home_view')
@@ -374,6 +377,7 @@ def show_login(request):
     else:
         config.eid=""
         config.efname =""
+        request.session['eid'] = None
         return render(request,'ultimatix/login.html')
 
 
@@ -619,7 +623,25 @@ def upload_attendance(request,adate):
 
 
 def apply_leave(request):
-    return render(request,'ultimatix/applyleave.html')
+    if request.method=='POST':
+        if request.POST.get('submit'):
+            sdate=request.POST.get('sdate')
+            edate = request.POST.get('edate')
+            nof=request.POST.get('nof')
+            ltype=request.POST.get('leave_select')
+            reason=request.POST.get('rsn')
+            return HttpResponse(ltype+reason)
+    else:
+        try:
+            logged_in = request.session['eid']
+        except:
+            logged_in = False
+        if logged_in:
+            user=Employee.objects.get(e_id=logged_in)
+            return render(request,'ultimatix/applyleave.html',{'user':user})
+        else:
+            request.session['eid'] = None
+            return redirect('ultimatix:show_login')
 
 def calendar_view(request):
     user=Employee.objects.get(e_id=config.eid)

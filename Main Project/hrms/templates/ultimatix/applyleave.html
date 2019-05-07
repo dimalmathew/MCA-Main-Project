@@ -1,13 +1,27 @@
 {% extends 'ultimatix/admin/adminbase.html'%}
 
 {%block body %}
+ <style type="text/css">
+  .ui-datepicker td.holiday a, .ui-datepicker td.holiday a:hover {
+     background: none #f44336;
+     border: 1px solid #f44336;
+   }
+ </style>
+<!--  <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/smoothness/jquery-ui.css"/>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>-->
+<!--<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" />
 
-
-<h2 class="w3ls_head">Apply for leave</h2>
+<!--<h2 class="w3ls_head">Apply for leave</h2>-->
 <div class="grid_3 grid_4 w3layouts">
 <!--<h1>{{eid}}</h1>-->
-    <div class="bs-example">
-        <form action="" method="post">
+    <div class="bs-example row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+        <form action="{% url 'ultimatix:apply_leave'%}" method="post">
             {% csrf_token%}
             {% if error %}
             <div class="form-group row">
@@ -32,23 +46,237 @@
             {%endif%}
             <div class="form-group row">
                 <div class="col-md-6">
-                    <label for="ldate">Choose Date</label>
-                    <input type="date" class="form-control" name="ldate" id="ldate">
+                    <label for="sdate">Start Date</label>
+                    <input type="text" class="form-control ldate" name="sdate" id="sdate" required>
                 </div>
                 <div class="col-md-6">
-                    <label for="tle">Name</label>
-                    <input type="text" class="form-control" name="tle" id="tle" value="{{pobj.ptitle}}">
+                    <label for="edate">End Date</label>
+                    <input type="text" class="form-control ldate" name="edate" id="edate" required>
                 </div>
             </div>
+
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="nof">Number of Days</label>
+                    <input type="text" class="form-control" name="nof" id="nof" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="leave_select">Leave Type</label>
+                    <select  title="Choose Leave Type" class=" form-control" id="leave_select" name="leave_select"required>
+						<option value="0">Casual Leave</option>
+                        <option value="1">Sick Leave</option>
+                        <option value="2">Earned Leave</option>
+                        <option value="3">Flexi Leave</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                <div class="checkbox">
+                    <label for="chk_half">
+                        <input type="checkbox" id="chk_half" name="chk_half">
+                        <b>Half Day</b>
+                    </label>
+                </div>
+            </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-12">
+                    <label for="rsn">Reason</label>
+                    <input type="text" class="form-control" name="rsn" id="rsn" required>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary form-control" value="submit" name="submit" id="submit">Submit Request</button>
+                </div>
+                <div class="col-md-3"></div>
+            </div>
         </form>
+        </div>
+        <div class="col-md-4">
+            <table style="width:100%">
+                <tr>
+                    <th>Type of Leave</th>
+                    <th>Count</th>
+                </tr>
+                <tr>
+                    <td>-----------------------</td>
+                    <td>----------</td>
+                </tr>
+                <tr>
+                    <td>Casual leave</td>
+                    <td>{{user.e_cl}}</td>
+                </tr>
+                <tr>
+                    <td>Sick leave</td>
+                    <td>{{user.e_sl}}</td>
+                </tr>
+                <tr>
+                    <td>Earned leave</td>
+                    <td>{{user.e_el}}</td>
+                </tr>
+                <tr>
+                    <td>Flexi leave</td>
+                    <td>{{user.e_fl}}</td>
+                </tr>
+            </table>
+        </div>
     </div>
 </div>
 
-<script>
+<!--<script>
 $(document).ready(function(){
 	$('#leave').addClass("active");
 	$('#leaveapply').addClass("active");
-1
+
+});
+</script>-->
+<script>
+$(document).ready(function(){
+  var holiDays =[
+  [2018,01,01,'New Years Day'],[2018,01,14,'Makar Sankranti / Pongal'],[2018,01,26,'Republic Day'],
+[2018,02,14,'Maha Shivaratri'],[2018,03,02,'Holi'],[2018,03,18,'Ugadi / Gudi Padwa'],[2018,03,30,'Good Friday'],
+[2018,05,01,'Labor Day'],[2018,06,16,'Eid-ul-Fitar'],[2018,08,15,'Independence Day'],[2018,08,22,'Bakri Id / Eid ul-Adha'],
+[2018,08,25,'Onam'],[2018,09,13,'Vinayaka Chaturthi'],[2018,09,21,'Muharram'],[2018,10,02,'Mathatma Gandhi Jayanti'],
+[2018,10,19,'Dussehra / Dasara'],[2018,11,07,'Diwali / Deepavali'],
+[2018,12,25,'Christmas'],
+
+  [2019,01,01,'New Years Day'],[2019,01,14,'Makar Sankranti / Pongal'],
+  [2019,01,26,'Republic Day'],[2019,03,04,'Maha Shivaratri'],[2019,03,21,'Holi'],
+  [2019,04,06,'Ugadi / Gudi Padwa'],
+  [2019,04,19,'Good Friday'],[2019,05,01,'Labor Day'],
+  [2019,06,05,'Eid-ul-Fitar'],[2019,08,12,'Bakri Id / Eid ul-Adha'],
+  [2019,08,15,'Independence Day'],
+  [2019,09,02,'Vinayaka Chaturthi'],[2019,09,10,'Muharram'],[2019,09,11,'Onam'],
+  [2019,10,02,'Mathatma Gandhi Jayanti'],[2019,10,08,'Dussehra / Dasara'],
+  [2019,10,27,'Diwali / Deepavali'],[2019,12,25,'Christmas']
+  ];
+
+$(function() {
+  $("#sdate").datepicker({
+     beforeShowDay: setHoliDays
+  });
+
+  // set holidays function which is configured in beforeShowDay
+ function setHoliDays(date) {
+   for (i = 0; i < holiDays.length; i++) {
+     if (date.getFullYear() == holiDays[i][0]
+    	  && date.getMonth() == holiDays[i][1] - 1
+          && date.getDate() == holiDays[i][2]) {
+        return [true, 'holiday', holiDays[i][3]];
+     }
+   }
+  return [true, ''];
+    }
+
+});
+
+$(function() {
+  $("#edate").datepicker({
+     beforeShowDay: setHoliDays
+  });
+
+  // set holidays function which is configured in beforeShowDay
+ function setHoliDays(date) {
+   for (i = 0; i < holiDays.length; i++) {
+     if (date.getFullYear() == holiDays[i][0]
+    	  && date.getMonth() == holiDays[i][1] - 1
+          && date.getDate() == holiDays[i][2]) {
+        return [true, 'holiday', holiDays[i][3]];
+     }
+   }
+  return [true, ''];
+    }
+
+});
+
+    var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
+
+    $('#nof').val(0);
+
+    $(".ldate").change(function() {
+        var txt1 =  $.trim( $('#sdate').val());
+        var txt2 =  $.trim( $('#edate').val());
+            if (txt1 != "" && txt2 != "") {
+               var s=txt1.split('/');
+               var e=txt2.split('/');
+               var f=new Date(txt1);
+               var t=new Date(txt2);
+               if(f<=t){
+                   var diff=new Date(t-f);
+               var days  = diff/1000/60/60/24;
+               $('#nof').val(parseFloat(days+1));
+               $("#chk_half").prop("checked", false);
+               }
+                else{
+
+                   alert('Caution ! Invalid date range');
+                   $("#chk_half").prop("checked", false);
+                    $('#nof').val(0);
+               }
+
+            }
+
+    });
+
+    $("#chk_half").click(function(){
+       if ($('#chk_half').is(":checked")) {
+           if($('#nof').val()!=1 || ($('#txt1').val()!=$('#txt2').val())){
+               alert('Half days must be applied seperately');
+               $("#chk_half").prop("checked", false);
+
+           }
+           else if($('#nof').val()==1){
+
+            $('#nof').val(0.5);
+           }
+       }
+       else{
+        $('#nof').val(1)
+       }
+    });
+
+    $('#submit').click(function(){
+        var f=0;
+        if($('#nof').val()==0){
+        alert('Please complete the details !');
+        f=1;
+        }
+        if(f!=1){
+            var cl=parseInt("{{user.e_cl}}");
+            var sl=parseInt("{{user.e_sl}}");
+            var el=parseInt("{{user.e_el}}");
+            var fl=parseInt("{{user.e_fl}}");
+            var lnof=parseInt($('#nof').val());
+            var ltype=parseInt($('#leave_select').val());
+            if(ltype==0&&((cl-lnof)<0)){
+                alert('You dont have enough casual leaves to apply !');
+                f=1;
+            }else if(ltype==1&&((sl-lnof)<0)){
+                alert('You dont have enough sick leaves to apply !');
+                f=1;
+            }else if(ltype==2&&((el-lnof)<0)){
+                alert('You dont have enough earned leaves to apply !');
+                f=1;
+            }else if(ltype==3&&((fl-lnof)<0)){
+                alert('You dont have enough flexi leaves to apply !');
+                f=1;
+            }
+
+        }
+        if(f==1){
+            event.preventDefault();
+        }
+    });
 });
 </script>
 {%endblock%}
