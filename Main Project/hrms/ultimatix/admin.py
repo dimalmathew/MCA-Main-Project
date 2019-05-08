@@ -53,3 +53,8 @@ class Timesheet_admin(admin.ModelAdmin):
     list_display = ['tid','eid','tdate','thours','tstate']
 
 admin.site.register(Timesheet,Timesheet_admin)
+
+class Leave_admin(admin.ModelAdmin):
+    list_display = ['lid','eid','sdate','edate','nof','ltype','status','desc','reqdate','remarks','queueid','updtby']
+
+admin.site.register(Leave,Leave_admin)

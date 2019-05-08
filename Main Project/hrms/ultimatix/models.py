@@ -128,3 +128,19 @@ class Timesheet(models.Model):
     def __str__(self):
         return str(self.tid)
 
+class Leave(models.Model):
+    lid=models.AutoField(primary_key=True)
+    eid = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    sdate=models.DateField(null=True,blank=True)
+    edate=models.DateField(null=True,blank=True)
+    nof=models.FloatField(null=True,blank=True)
+    ltype=models.IntegerField(null=True,blank=True)
+    status=models.CharField(max_length=1,null=True,blank=True)
+    desc=models.CharField(max_length=150,null=True,blank=True)
+    reqdate=models.DateField(null=True,blank=True)
+    remarks=models.CharField(max_length=150,null=True,blank=True)
+    queueid=models.CharField(max_length=150,null=True,blank=True)
+    updtby=models.CharField(max_length=150,null=True,blank=True)
+
+    def __str__(self):
+        return str(self.lid)

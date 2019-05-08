@@ -264,17 +264,17 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     </a>
                 </li>
                 
-                <li class="sub-menu" >
+                <!--<li class="sub-menu" >
                     <a id="desig" href="{% url 'ultimatix:desig_mngt'%}">
                         <i class="fa fa-book"></i>
                         <span>Designation</span>
                     </a>
-                    <!--<ul class="sub">
+                    &lt;!&ndash;<ul class="sub">
 						<li><a href="#">Designation</a></li>
 						<li><a href="#">Employee</a></li>
                         <li><a href="#">Project</a></li>
-                    </ul>-->
-                </li>
+                    </ul>&ndash;&gt;
+                </li>-->
                 <!--<li>
                     <a href="#">
                         <i class="fa fa-bullhorn"></i>
@@ -287,7 +287,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                         <span>Project</span>
                     </a>
                     <ul class="sub">
-                        <li><a id="roles" href="{% url 'ultimatix:roles_mngt'%}">Project Roles</a></li>
+
                         <li><a id="crt_project" href="{% url 'ultimatix:create_project'%}">Create Project</a></li>
                         <li><a id="project_dtl" href="{% url 'ultimatix:view_project'%}">Project Details</a></li>
                         <li><a id="emp_alloc" href="{% url 'ultimatix:emp_allocate'%}">Employee Allocation</a></li>
@@ -295,7 +295,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 </li>
                 <li class="sub-menu">
                     <a id="emp" href="javascript:;">
-                        <i class="fa fa-th"></i>
+                        <i class="fa  fa-users"></i>
                         <span>Employee</span>
                     </a>
                     <ul class="sub">
@@ -304,19 +304,10 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
 						<!--<li><a id="updt_emp" href="{% url 'ultimatix:view_emp'%}">Update Details</a></li>-->
                     </ul>
                 </li>
-                <li class="sub-menu">
-                    <a href="javascript:;">
-                        <i class="fa fa-envelope"></i>
-                        <span>Mail </span>
-                    </a>
-                    <ul class="sub">
-                        <li><a href="#">Inbox</a></li>
-                        <li><a href="#">Compose Mail</a></li>
-                    </ul>
-                </li>
+
                 <li class="sub-menu">
                     <a href="javascript:;" id="leave">
-                        <i class=" fa fa-bar-chart-o"></i>
+                        <i class=" fa fa-edit"></i>
                         <span>Leave</span>
                     </a>
                     <ul class="sub">
@@ -326,7 +317,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 </li>
                 <li class="sub-menu">
                     <a id="attendance" href="javascript:;">
-                        <i class=" fa fa-bar-chart-o"></i>
+                        <i class=" fa fa-calendar"></i>
                         <span>Timesheet</span>
                     </a>
                     <ul class="sub">
@@ -335,22 +326,34 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     </ul>
                 </li>
                 <li class="sub-menu">
-                    <a href="javascript:;">
-                        <i class="fa fa-glass"></i>
-                        <span>Extra</span>
+                    <a id="settings" href="javascript:;">
+                        <i class="fa fa-wrench"></i>
+                        <span>Settings</span>
                     </a>
                     <ul class="sub">
-                        <li><a href="#">Gallery</a></li>
+                        <li><a id="desig" href="{% url 'ultimatix:desig_mngt'%}">Designations</a></li>
+                        <li><a id="roles" href="{% url 'ultimatix:roles_mngt'%}">Project Roles</a></li>
+<!--                        <li><a href="#">Gallery</a></li>
 						<li><a href="#">404 Error</a></li>
-                        <li><a href="#">Registration</a></li>
+                        <li><a href="#">Registration</a></li>-->
                     </ul>
                 </li>
-                <li>
+                <!--<li class="sub-menu">
+                    <a href="javascript:;">
+                        <i class="fa fa-envelope"></i>
+                        <span>Mail </span>
+                    </a>
+                    <ul class="sub">
+                        <li><a href="#">Inbox</a></li>
+                        <li><a href="#">Compose Mail</a></li>
+                    </ul>
+                </li>-->
+                <!--<li>
                     <a href="#">
                         <i class="fa fa-user"></i>
                         <span>Login Page</span>
                     </a>
-                </li>
+                </li>-->
 
             </ul>            </div>
         <!-- sidebar menu end-->

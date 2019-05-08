@@ -1,4 +1,4 @@
-import datetime
+#import datetime
 import json
 import os
 
@@ -8,8 +8,8 @@ from django.db.models import Max
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from .models import *
-import datetime
 from datetime import datetime
+#import datetime
 from ultimatix import config
 # Create your views here.
 def dictfetchall(cursor):
@@ -142,7 +142,7 @@ def roles_view(request):
         cd=request.POST.get("role_cd")
         desc=request.POST.get("role_desc")
         active=str(request.POST.get("chk_act"))
-        updt=str(datetime.datetime.now())
+        updt=str(datetime.now())
         if active !='Y':
             active='N'
         if request.POST.get("add"):
@@ -216,7 +216,7 @@ def regemp_view(request):
             des=request.POST.get('desig_select')
             sal=request.POST.get('salary')
             des_id=Designation.objects.get(d_cd=des).d_id
-            des_sdate=str(datetime.datetime.today().strftime('%Y-%m-%d'))
+            des_sdate=str(datetime.today().strftime('%Y-%m-%d'))
             #return HttpResponse(des_sdate)
             eobj=Employee.objects.create(e_id=id,e_fname=fname,e_lname=lname,e_sname=sname,e_dob=dob,e_bgroup=bgroup,
                                          e_mstatus=mstatus,e_nationality=nationality,e_disb=disb,e_gender=gender,
@@ -287,8 +287,8 @@ def updtemp_view(request,pk=0):
         print(des_id)
         ob = Employee_desig.objects.filter(ed_eid=eid, ed_did=des_id, ed_status='Y')
         if not ob:
-            des_sdate = str(datetime.datetime.today().strftime('%Y-%m-%d'))
-            des_edate = str(datetime.datetime.today().strftime('%Y-%m-%d'))
+            des_sdate = str(datetime.today().strftime('%Y-%m-%d'))
+            des_edate = str(datetime.today().strftime('%Y-%m-%d'))
             Employee_desig.objects.filter(ed_eid=eid,ed_status='Y').update(ed_edate=des_edate,ed_status='N')
             desobj = Employee_desig.objects.create(ed_eid=Employee.objects.get(e_id=eid),
                                                    ed_did=Designation.objects.get(d_id=des_id), ed_sdate=des_sdate,
@@ -296,8 +296,8 @@ def updtemp_view(request,pk=0):
             desobj.save()
         sal = request.POST.get('salary')
         if(float(sal)!=(Employee_sal.objects.get(es_eid=eid,es_status='Y').es_ctc)):
-            sal_sdate = str(datetime.datetime.today().strftime('%Y-%m-%d'))
-            sal_edate = str(datetime.datetime.today().strftime('%Y-%m-%d'))
+            sal_sdate = str(datetime.today().strftime('%Y-%m-%d'))
+            sal_edate = str(datetime.today().strftime('%Y-%m-%d'))
             Employee_sal.objects.filter(es_eid=eid,es_status='Y').update(es_edate=sal_edate,es_status='N')
             salob = Employee_sal.objects.create(es_eid=Employee.objects.get(e_id=eid), es_ctc=sal, es_sdate=sal_sdate,
                                                 es_status='Y')
@@ -395,7 +395,7 @@ def updtproj_view(request,pid):
                 status = request.POST.get('status')
                 if expedate:
                     if status=='C':
-                        edate = str(datetime.datetime.today().strftime('%Y-%m-%d'))
+                        edate = str(datetime.today().strftime('%Y-%m-%d'))
                         Project.objects.filter(pid=pid).update(pdesc=desc, pexpedate=expedate, pedate=edate,pclient=client,
                                                                pstatus=status)
                         return redirect('ultimatix:view_project')
@@ -405,7 +405,7 @@ def updtproj_view(request,pid):
 
                 else:
                     if status=='C':
-                        edate = str(datetime.datetime.today().strftime('%Y-%m-%d'))
+                        edate = str(datetime.today().strftime('%Y-%m-%d'))
                         Project.objects.filter(pid=pid).update(pdesc=desc, pedate=edate,pclient=client,
                                                                pstatus=status)
                         return redirect('ultimatix:view_project')
@@ -455,7 +455,7 @@ def allocate_view(request):
         pid=request.POST.get('pid')
         eid = request.POST.get('emp_select')
         rid=request.POST.get('role_select')
-        sdate=str(datetime.datetime.now())
+        sdate=str(datetime.now())
 
         cursor = connection.cursor()
         sql = """
@@ -625,12 +625,36 @@ def upload_attendance(request,adate):
 def apply_leave(request):
     if request.method=='POST':
         if request.POST.get('submit'):
-            sdate=request.POST.get('sdate')
-            edate = request.POST.get('edate')
-            nof=request.POST.get('nof')
+            eid=request.session['eid']
+            sdate=datetime.strptime(request.POST.get('sdate'), '%m/%d/%Y').strftime('%Y-%m-%d')
+            edate = datetime.strptime(request.POST.get('edate'), '%m/%d/%Y').strftime('%Y-%m-%d')
+            nof=float(request.POST.get('nof'))
             ltype=request.POST.get('leave_select')
-            reason=request.POST.get('rsn')
-            return HttpResponse(ltype+reason)
+            desc = request.POST.get('rsn')
+            status='A'
+            reqdate = str(datetime.now().strftime('%Y-%m-%d'))
+            '''Leave.objects.create(eid=Employee.objects.get(e_id=eid),sdate=sdate,edate=edate,nof=nof,
+                                 ltype=ltype,desc=desc,status=status,reqdate=reqdate)
+            if ltype=='0':
+                rem=(Employee.objects.get(e_id=eid).e_cl)-nof
+                Employee.objects.filter(e_id=eid).update(e_cl=rem)
+            elif ltype=='1':
+                rem=(Employee.objects.get(e_id=eid).e_sl)-nof
+                Employee.objects.filter(e_id=eid).update(e_sl=rem)
+            elif ltype=='2':
+                rem=(Employee.objects.get(e_id=eid).e_el)-nof
+                Employee.objects.filter(e_id=eid).update(e_el=rem)
+            elif ltype=='3':
+                rem=(Employee.objects.get(e_id=eid).e_fl)-nof
+                Employee.objects.filter(e_id=eid).update(e_fl=rem)
+
+            
+            logged_in = request.session['eid']
+            user=Employee.objects.get(e_id=logged_in)
+            return render(request,'ultimatix/applyleave.html',{'user':user,'success':'Leave request submitted !'})'''
+
+            queueid = findqueueid(eid)
+            return HttpResponse(queueid)
     else:
         try:
             logged_in = request.session['eid']
@@ -642,6 +666,9 @@ def apply_leave(request):
         else:
             request.session['eid'] = None
             return redirect('ultimatix:show_login')
+
+def findqueueid(eid):
+    print('called')
 
 def calendar_view(request):
     user=Employee.objects.get(e_id=config.eid)

@@ -15,33 +15,33 @@
     <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.css" />
 
-<!--<h2 class="w3ls_head">Apply for leave</h2>-->
+<h2 class="w3ls_head">Apply for leave</h2>
 <div class="grid_3 grid_4 w3layouts">
 <!--<h1>{{eid}}</h1>-->
     <div class="bs-example row">
         <div class="col-md-4"></div>
         <div class="col-md-4">
-        <form action="{% url 'ultimatix:apply_leave'%}" method="post">
+        <form action="{% url 'ultimatix:apply_leave'%}" method="post" autocomplete="off">
             {% csrf_token%}
             {% if error %}
             <div class="form-group row">
-                <div class="col-md-2"></div>
-                <div class="col-md-8">
+                <!--<div class="col-md-2"></div>-->
+                <div class="col-md-12">
                     <div class="alert alert-danger" id="error">
-                        <strong>Danger!</strong>{{error}}
+                        {{error}}
                     </div>
                 </div>
-                <div class="col-md-2"></div>
+                <!--<div class="col-md-2"></div>-->
             </div>
             {% elif success %}
             <div class="form-group row">
-                <div class="col-md-2"></div>
-                <div class="col-md-8">
+                <!--<div class="col-md-2"></div>-->
+                <div class="col-md-12">
                     <div class="alert alert-success" id="success">
-                        <strong>Success!</strong>{{success}}
+                        {{success}}
                     </div>
                 </div>
-                <div class="col-md-2"></div>
+                <!--<div class="col-md-2"></div>-->
             </div>
             {%endif%}
             <div class="form-group row">
@@ -82,7 +82,7 @@
             </div>
             <div class="form-group row">
                 <div class="col-md-12">
-                    <label for="rsn">Reason</label>
+                    <label for="rsn">Description</label>
                     <input type="text" class="form-control" name="rsn" id="rsn" required>
                 </div>
             </div>
@@ -96,6 +96,9 @@
         </form>
         </div>
         <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-10">
             <table style="width:100%">
                 <tr>
                     <th>Type of Leave</th>
@@ -122,6 +125,8 @@
                     <td>{{user.e_fl}}</td>
                 </tr>
             </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -135,6 +140,9 @@ $(document).ready(function(){
 </script>-->
 <script>
 $(document).ready(function(){
+    $('#leave').addClass("active");
+	$('#leaveapply').addClass("active");
+
   var holiDays =[
   [2018,01,01,'New Years Day'],[2018,01,14,'Makar Sankranti / Pongal'],[2018,01,26,'Republic Day'],
 [2018,02,14,'Maha Shivaratri'],[2018,03,02,'Holi'],[2018,03,18,'Ugadi / Gudi Padwa'],[2018,03,30,'Good Friday'],
