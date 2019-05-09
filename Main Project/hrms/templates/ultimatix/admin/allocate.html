@@ -71,10 +71,19 @@
                 </div>
                 <div class="col-md-6">
                     <select  title="Choose Employee" class="form-control" name="emp_select" id="emp_select" required>
-<!--                        {% for e in eobj%}
-                        <option>{{e.e_id}}</option>
-                        {%endfor%}-->
+                        {% for e in eobj%}
+                        <option value="{{e.ename}}">{{e.eid}}</option>
+                        {%endfor%}
                     </select>
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="empname">Employee Name</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" name="empname" id="empname" disabled>
                 </div>
             </div>
             <div class="form-group row">
@@ -111,16 +120,23 @@ $(document).ready(function(){
 
     $('#pname').val(($("#project_select").val()));
     $('#pid').val($('#project_select').children("option:selected").text());
+
+    $('#empname').val(($('#emp_select').children("option:selected").val()));
+
     $("#project_select").change(function(){
 	    $('#pname').val(($("#project_select").val()));
 	    $('#pid').val($(this).children("option:selected").text());
 	});
 
-    obj1=JSON.parse("{{eobj}}");
+    $("#emp_select").change(function(){
+    $('#empname').val(($(this).children("option:selected").val()));
+	});
+
+/*    obj1=JSON.parse("{{eobj}}");
     $("#emp_select").empty();
     for(var i=0;i<obj1.length;i++){
     $("#emp_select").append(new Option(obj1[i]));
-    }
+    }*/
 
     $("#desig_select").change(function(){
 	    var desid=$("#desig_select").val();
@@ -132,14 +148,29 @@ $(document).ready(function(){
 			    desid: desid
 			},
 		    success: function(data){
-				obj=JSON.parse(data);
+/*				obj=JSON.parse(data);
                 $("#emp_select").empty();
                 for(var i=0;i<obj.length;i++){
                     $("#emp_select").append(new Option(obj[i]));
+                }*/
+           /* alert(data);*/
+            $("#emp_select").empty();
+                for(i=0;i<data.length;i++){
+                $("#emp_select").append(new Option(data[i].eid,data[i].ename));
                 }
+                $('#empname').val($("#emp_select option:first").val());
 		    }
         });
 	});
+
+    var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
 });
 </script>
 {%endblock%}

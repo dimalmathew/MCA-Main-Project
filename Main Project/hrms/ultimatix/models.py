@@ -102,6 +102,11 @@ class Project(models.Model):
     powner=models.ForeignKey(Employee,on_delete=models.CASCADE)
     pstatus=models.CharField(max_length=1)
 
+    pcloc=models.CharField(max_length=150,null=True,blank=True)
+    pcomplexity=models.CharField(max_length=150,null=True,blank=True)
+    ptype=models.CharField(max_length=150,null=True,blank=True)
+    pbudget=models.FloatField(null=True,blank=True)
+
     def __str__(self):
         return str(self.pid)
 

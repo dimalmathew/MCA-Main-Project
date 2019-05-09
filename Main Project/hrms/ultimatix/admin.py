@@ -40,7 +40,7 @@ admin.site.register(Employee_sal,Employee_sal_admin)
 
 
 class Project_admin(admin.ModelAdmin):
-    list_display = ['pid','ptitle','pdesc','psdate','pexpedate','pedate','pcrtd','pclient','powner','pstatus']
+    list_display = ['pid','ptitle','pdesc','psdate','pexpedate','pedate','pcrtd','pclient','pcloc','pcomplexity','ptype','pbudget','powner','pstatus']
 
 admin.site.register(Project,Project_admin)
 

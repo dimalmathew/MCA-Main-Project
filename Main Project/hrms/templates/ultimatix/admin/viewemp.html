@@ -26,25 +26,25 @@
             <tr>
                 <th style="color:black;">Employee Id</th>
                 <th style="color:black;">Name</th>
-                <th style="color:black;">DOB</th>
                 <th style="color:black;">Gender</th>
+                <th style="color:black;">Date of joining</th>
 
-                <th style="color:black;">E-mail</th>
-                <th style="color:black;">DOJ</th>
+                <th style="color:black;">Designation</th>
+                <th style="color:black;">Salary</th>
                 <th style="color:black;">Status</th>
             </tr>
         </thead>
         <tbody>
             {% for e in eobj %}
             <tr>
-                <td style="color:black;"><a href="{% url 'ultimatix:updt_emp' e.e_id %}">{{e.e_id}}</a></td>
-                <td style="color:black;">{{e.e_fname}} {{e.e_lname}} </td>
-                <td style="color:black;">{{e.e_dob}}</td>
-                <td style="color:black;">{{e.e_gender}}</td>
+                <td style="color:black;"><a href="{% url 'ultimatix:updt_emp' e.eid %}">{{e.eid}}</a></td>
+                <td style="color:black;">{{e.name}} </td>
+                <td style="color:black;">{{e.gender}}</td>
+                <td style="color:black;">{{e.doj}}</td>
 
-                <td style="color:black;">{{e.e_email}}</td>
-                <td style="color:black;">{{e.e_doj}}</td>
-                <td style="color:black;">{{e.e_status}}</td>
+                <td style="color:black;">{{e.desig}}</td>
+                <td style="color:black;">{{e.ctc}}</td>
+                <td style="color:black;">{{e.status}}</td>
             </tr>
             {%endfor%}
 

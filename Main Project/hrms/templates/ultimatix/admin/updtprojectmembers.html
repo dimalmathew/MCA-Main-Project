@@ -112,10 +112,13 @@
                 </td>
                 <td style="color:black;">{{r.pmstatus}}</td>
                 <td>
-                    {% if r.pmstatus == 'Y' %}
-                        <a href="{% url 'ultimatix:emp_deallocate' r.pmid %}" class="btn btn-primary form-control test">Update</a>
+                    {% if r.prdesc == 'Project Owner' %}
+                    <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
+                    <!--<button type="submit" class="btn btn-primary form-control test">Update</button>-->
+                    {%elif r.pmstatus ==  'N' %}
+                    <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
                     {%else%}
-                        <a href="{% url 'ultimatix:emp_deallocate' r.pmid %}" class="btn btn-primary form-control test inactiveLink" disabled>Update</a>
+                    <button type="submit" class="btn btn-primary form-control test">Update</button>
                     {%endif%}
                 </td>
             </tr>
@@ -162,6 +165,15 @@ $(document).ready(function(){
     }else{
         $('#status').val('Completed')
     }
+
+            var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
 });
 </script>
 <!--$('#example').DataTable();-->

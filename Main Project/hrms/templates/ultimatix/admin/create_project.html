@@ -12,7 +12,7 @@
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
                     <div class="alert alert-danger" id="error">
-                        <strong>Danger!</strong>{{error}}
+                        {{error}}
                     </div>
                 </div>
                 <div class="col-md-2"></div>
@@ -22,7 +22,7 @@
                 <div class="col-md-2"></div>
                 <div class="col-md-8">
                     <div class="alert alert-success" id="success">
-                        <strong>Success!</strong>{{success}}
+                        {{success}}
                     </div>
                 </div>
                 <div class="col-md-2"></div>
@@ -38,6 +38,55 @@
                     <input type="text" class="form-control" name="desc" id="desc" required>
                 </div>
             </div>
+
+            <div class="form-group row">
+<!--                <div class="col-md-6">
+                    <label for="crtd">Created By</label>
+                    <input type="text" class="form-control" name="crtd" id="crtd" value="{{efname}}" readonly>
+                </div>-->
+                <div class="col-md-6">
+                    <label for="client">Client</label>
+                    <input type="text" class="form-control" name="client" id="client" required>
+                </div>
+                                <div class="col-md-6">
+                    <label for="loct">Client Location</label>
+                    <input type="text" class="form-control" name="loct" id="loct" value="">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="size_select">Complexity</label>
+                    <select  title="Choose Size" class=" form-control" id="size_select" name="size_select"required>
+						<option>Small</option>
+                        <option>Medium</option>
+                        <option>Large</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="upto">Employees</label>
+                    <input type="text" class="form-control" name="upto" id="upto" readonly>
+                </div>
+
+
+            </div>
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <label for="type_select">Type</label>
+                    <select  title="Choose Type" class=" form-control" id="type_select" name="type_select"required>
+						<option >Agile</option>
+                        <option >Scrum</option>
+                        <option >Lean</option>
+                        <option >XP</option>
+                        <option >Waterfall</option>
+                        <option >Hybrid</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="budget">Budget</label>
+                    <input type="number" class="form-control" name="budget" id="budget" step=".01" min="30000">
+                </div>
+
+            </div>
             <div class="form-group row">
                 <div class="col-md-6">
                     <label for="sdate">Start Date</label>
@@ -49,16 +98,7 @@
                 </div>
 
             </div>
-            <div class="form-group row">
-                <div class="col-md-6">
-                    <label for="crtd">Created By</label>
-                    <input type="text" class="form-control" name="crtd" id="crtd" value="{{efname}}" readonly>
-                </div>
-                <div class="col-md-6">
-                    <label for="client">Client</label>
-                    <input type="text" class="form-control" name="client" id="client" required>
-                </div>
-            </div>
+
             <div class="form-group row">
                 <div class="col-md-4"></div>
                 <div class="col-md-4">
@@ -70,6 +110,7 @@
                 </div>
                 <div class="col-md-4"></div>
             </div>
+
         </form>
     </div>
 </div>
@@ -90,7 +131,41 @@ $(document).ready(function(){
     }
     var mindate=y1+'-'+m1+'-'+d1;
     document.getElementById("sdate").setAttribute("min", mindate);
+
+    var t1=new Date();
+    var d1=t1.getDate()+7;
+    var m1=t1.getMonth()+1;
+    var y1=t1.getFullYear();
+    if(d1<10){
+        d1='0'+d1
+    }
+    if(m1<10){
+        m1='0'+m1
+    }
+    var mindate=y1+'-'+m1+'-'+d1;
     document.getElementById("expedate").setAttribute("min", mindate);
+
+    $('#upto').val("1-15");
+
+    $( "#size_select" ).change(function() {
+        var size=$('#size_select').val();
+        if(size=='Small'){
+            $('#upto').val("1-15");
+        }else if(size=='Medium'){
+            $('#upto').val("16-49");
+        }else if(size=='Large'){
+            $('#upto').val(">50");
+        }
+    });
+
+        var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
 });
 </script>
 {%endblock%}
