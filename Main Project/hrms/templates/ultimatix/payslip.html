@@ -1,0 +1,28 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<h2 class="w3ls_head">Salary Details</h2>
+<div class="grid_3 grid_4 w3layouts ">
+        <!--<h3 class="hdg">Headings</h3>-->
+    <div class="bs-example">
+
+    </div>
+</div>
+
+
+<script>
+$(document).ready(function(){
+	$('#pslip').addClass("active");
+	$('#view_pslip').addClass("active");
+
+    var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
+});
+</script>
+{%endblock%}

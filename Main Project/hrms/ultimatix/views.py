@@ -21,7 +21,19 @@ def dictfetchall(cursor):
     ]
 
 def home_view(request):
-    return render(request,'ultimatix/admin/adminhome.html')
+    try:
+        logged_in = request.session['eid']
+    except:
+        logged_in = False
+
+    if logged_in:
+        user = Employee.objects.get(e_id=logged_in)
+        return render(request, 'ultimatix/admin/adminhome.html',{'user':user})
+    else:
+        request.session['eid'] = None
+        return redirect('ultimatix:show_login')
+
+
 
 
 def designation_view(request):
@@ -73,9 +85,11 @@ def designation_view(request):
         if request.POST.get("add"):
             ob=Designation.objects.filter(d_cd=cd)
             if ob:
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
                 obj = Designation.objects.all().exclude(d_role=0)
                 return render(request, 'ultimatix/admin/designation.html',
-                             {'error': ' Designation already exists !','obj':obj})
+                             {'error': ' Designation already exists !','obj':obj,'user':user})
             else:
                 try:
                     print('Entered for new save')
@@ -89,32 +103,42 @@ def designation_view(request):
                     cursor.close()
                     #obj=Designation.objects.create(d_cd=cd,d_desc=desc,d_min=min_exp,d_max=max_exp,d_role=r_num)
                     #obj.save()
+                    logged_in = request.session['eid']
+                    user = Employee.objects.get(e_id=logged_in)
                     obj = Designation.objects.all().exclude(d_role=0)
                     return render(request, 'ultimatix/admin/designation.html',
-                              {'success': ' Data saved successfully!','obj':obj})
+                              {'success': ' Data saved successfully!','obj':obj,'user':user})
                 except DatabaseError  as e:
                     print('Database error : '+str(e))
                     connection.rollback()
                     obj = Designation.objects.all().exclude(d_role=0)
+                    logged_in = request.session['eid']
+                    user = Employee.objects.get(e_id=logged_in)
                     return render(request, 'ultimatix/admin/designation.html',
-                              {'error': ' Database error.Please contact system admin!','obj':obj})
+                              {'error': ' Database error.Please contact system admin!','obj':obj,'user':user})
                 finally:
                     if cursor:
                         cursor.close()
         elif request.POST.get("update"):
             ob = Designation.objects.filter(d_cd=cd)
             if ob:
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
                 Designation.objects.filter(d_cd=cd).update(d_desc=desc,d_min=min_exp,d_max=max_exp,d_role=r_num)
                 obj = Designation.objects.all().exclude(d_role=0)
                 return render(request, 'ultimatix/admin/designation.html',
-                             {'success': ' Data saved successfully!','obj':obj})
+                             {'success': ' Data saved successfully!','obj':obj,'user':user})
             else:
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
                 obj = Designation.objects.all().exclude(d_role=0)
                 return render(request, 'ultimatix/admin/designation.html',
-                             {'error': ' Designation does not exist !','obj':obj})
+                             {'error': ' Designation does not exist !','obj':obj,'user':user})
     else:
+        logged_in = request.session['eid']
+        user = Employee.objects.get(e_id=logged_in)
         obj=Designation.objects.all().exclude(d_role=0)
-        return render(request,'ultimatix/admin/designation.html',{'obj':obj})
+        return render(request,'ultimatix/admin/designation.html',{'obj':obj,'user':user})
 
 
 
@@ -149,29 +173,39 @@ def roles_view(request):
             p_obj=Project_roles.objects.filter(r_cd=cd)
             if p_obj:
                 obj = Project_roles.objects.all()
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
                 return render(request, 'ultimatix/admin/roles.html',
-                              {'error': ' Project role already exists !', 'obj': obj})
+                              {'error': ' Project role already exists !', 'obj': obj,'user':user})
             else:
                 ob=Project_roles.objects.create(r_cd=cd,r_desc=desc,r_active=active,r_updt=updt)
                 ob.save()
 
                 obj = Project_roles.objects.all()
-                return render(request, 'ultimatix/admin/roles.html', {'success': ' Data saved successfully!','obj': obj})
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
+                return render(request, 'ultimatix/admin/roles.html', {'success': ' Data saved successfully!','obj': obj,'user':user})
         elif request.POST.get("update"):
             ob = Project_roles.objects.filter(r_cd=cd)
             if ob:
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
                 Project_roles.objects.filter(r_cd=cd).update(r_desc=desc,r_active=active,r_updt=updt)
                 obj = Project_roles.objects.all()
                 return render(request, 'ultimatix/admin/roles.html',
-                             {'success': ' Data saved successfully!','obj':obj})
+                             {'success': ' Data saved successfully!','obj':obj,'user':user})
             else:
+                logged_in = request.session['eid']
+                user = Employee.objects.get(e_id=logged_in)
                 obj = Project_roles.objects.all()
                 return render(request, 'ultimatix/admin/roles.html',
-                             {'error': ' Role does not exist !','obj':obj})
+                             {'error': ' Role does not exist !','obj':obj,'user':user})
 
     else:
+        logged_in = request.session['eid']
+        user = Employee.objects.get(e_id=logged_in)
         obj = Project_roles.objects.all()
-        return render(request,'ultimatix/admin/roles.html',{'obj':obj})
+        return render(request,'ultimatix/admin/roles.html',{'obj':obj,'user':user})
 
 
 def regemp_view(request):
@@ -239,13 +273,22 @@ def regemp_view(request):
 
             idob.id_val = id + 1
             idob.save()
-
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
             dobj = Designation.objects.all().exclude(d_role=0)
-            return render(request,'ultimatix/admin/addemp.html',{'success':' Data saved successfully !','dobj':dobj})
+            return render(request,'ultimatix/admin/addemp.html',{'success':' Data saved successfully !','dobj':dobj,'user':user})
     else:
-        dobj=Designation.objects.all().exclude(d_role=0)
-        return render(request,'ultimatix/admin/addemp.html',{'dobj':dobj})
-
+        try:
+            logged_in = request.session['eid']
+        except:
+            logged_in = False
+        if logged_in:
+            user=Employee.objects.get(e_id=logged_in)
+            dobj=Designation.objects.all().exclude(d_role=0)
+            return render(request,'ultimatix/admin/addemp.html',{'dobj':dobj,'user':user})
+        else:
+            request.session['eid'] = None
+            return redirect('ultimatix:show_login')
 
 def viewemp_view(request):
 
@@ -273,7 +316,9 @@ def viewemp_view(request):
         t['status']=r[6]
         res_list.append(t)
     cursor.close()
-    return render(request,'ultimatix/admin/viewemp.html',{'eobj':res_list})
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    return render(request,'ultimatix/admin/viewemp.html',{'eobj':res_list,'user':user})
 
 
 def updtemp_view(request,pk=0):
@@ -476,7 +521,6 @@ def allocate_view(request):
     if request.is_ajax() and request.GET:
         desid = request.GET.get('desid')
         cursor = connection.cursor()
-        #print('desid : '+desid)
         if int(desid)!=0:
             #print('desid not 0')
             sql = """
@@ -486,7 +530,6 @@ def allocate_view(request):
             """
             cursor.execute(sql,[desid])
         else:
-            #print('desid 0')
             sql = """
             select e_id,(e_fname||" "||ifnull(e_lname,"")) from ultimatix_employee where e_id in(select es.ed_eid_id from 
             ultimatix_employee_desig es where es.ed_did_id!='16' and es.ed_status='Y') and 
@@ -502,25 +545,28 @@ def allocate_view(request):
             res_list.append(t)
         j=json.dumps(res_list)
         cursor.close()
-        print('result : '+str(res_list))
+        #print('called')
+        #print('result : '+str(res_list))
         return JsonResponse(res_list, safe=False)
     elif request.method=='POST':
         pid=request.POST.get('pid')
-        eid = request.POST.get('emp_select')
+        eid = request.POST.get('eid')
+        #print('Employee id: '+eid)
         rid=request.POST.get('role_select')
+        desig_cd=Designation.objects.get(d_id=int(request.POST.get('desig_select'))).d_cd
         sdate=str(datetime.now())
 
         #### if employee is assigned to same project already
         cursor = connection.cursor()
         sql = """
-        select eid_id from ultimatix_project_members where eid_id=%s and pid_id=%s 
+        select eid_id from ultimatix_project_members where eid_id=%s 
         and pmstatus='Y'
         """
-        cursor.execute(sql,[eid,pid])
+        cursor.execute(sql,[eid])
         res=cursor.fetchall()
-        print('result : '+str(res))
+        #print('result : '+str(res))
 
-        #### if project does not have an hr
+        #### if project have an active hr
         sql='''
         select ue.e_id
         from ultimatix_employee ue
@@ -531,25 +577,63 @@ def allocate_view(request):
         cursor.execute(sql, [pid])
         res1=cursor.fetchall()
 
+        sql='''
+        select ue.e_id
+        from ultimatix_employee ue
+        left outer join ultimatix_project_members upm on upm.eid_id = ue.e_id
+        left outer join ultimatix_project_roles up on up.r_id = upm.rid_id
+        where upm.pmstatus = 'Y' and up.r_cd='PM' and ue.e_status = 'Y' and upm.pid_id=%s        
+        '''
+        cursor.execute(sql, [pid])
+        res2=cursor.fetchall()
+
 
         cursor.close()
         if res:
+            #if employee is assigned to same project already
+            print('case 1')
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
             result=default_allocate_view()
-            return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],'error':' Employee is already allocated !'})
-        elif not res1:
+            return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],'error':' Employee is already allocated !','user':user})
+        elif not res1 and (desig_cd not in ('HR','HR-M')):
+            #if project does not have an HR nad currently not assigning an HR
+            print('case 2')
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
+            #print('role id : '+str(rid))
             result = default_allocate_view()
             return render(request, 'ultimatix/admin/allocate.html',
                           {'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],
-                           'error': ' Assign an HR first !'})
+                           'error': ' Assign an HR first !','user':user})
+            '''elif not res2 and desig_cd not in ('PM'):
+            print('case 3')
+            print(str(res1)+desig_cd)
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
+            result = default_allocate_view()
+            return render(request, 'ultimatix/admin/allocate.html',
+                          {'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],
+                           'error': ' Please assign a manager for the project !','user':user})'''
+            '''elif res1:
+            # if project already have an HR
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
+            result = default_allocate_view()
+            return render(request, 'ultimatix/admin/allocate.html',
+                          {'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],
+                           'error': ' Project already has an HR !','user':user})'''
         else:
 
-            '''ob = Project_members.objects.create(pid=Project.objects.get(pid=pid),
+            ob = Project_members.objects.create(pid=Project.objects.get(pid=pid),
                                             eid=Employee.objects.get(e_id=eid),
                                             rid=Project_roles.objects.get(r_id=rid),
                                             pmsdate=sdate,pmstatus='Y')
-            ob.save()'''
+            ob.save()
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
             result=default_allocate_view()
-            return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],'success':' Data saved successfully !'})
+            return render(request,'ultimatix/admin/allocate.html',{'pobj': result[0], 'dobj': result[1], 'eobj': result[2], 'robj': result[3],'success':' Data saved successfully !','user':user})
     else:
         try:
             logged_in = request.session['eid']
@@ -566,13 +650,14 @@ def allocate_view(request):
 def default_allocate_view():
     pobj = Project.objects.all().exclude(pstatus='C')
     dobj = Designation.objects.all().exclude(d_cd='SYSADMIN')
+    initial_desid=Designation.objects.all().exclude(d_cd='SYSADMIN').first().d_id
     cursor = connection.cursor()
     sql = """
     select e_id,(e_fname||" "||ifnull(e_lname,"")) from ultimatix_employee where e_id in(select es.ed_eid_id from 
-    ultimatix_employee_desig es where es.ed_did_id!='16' and es.ed_status='Y') and 
+    ultimatix_employee_desig es where es.ed_did_id=%s and es.ed_status='Y') and 
     e_status='Y' order by e_id
     """
-    cursor.execute(sql)
+    cursor.execute(sql,[initial_desid])
     res = cursor.fetchall()
     res_list = []
     for r in res:
@@ -586,7 +671,7 @@ def default_allocate_view():
         #t=r[0]
         res_list.append(t)
     eobj = json.dumps(res_list)
-    print('eobj:'+str(eobj))
+    #print('eobj:'+str(eobj))
     robj = Project_roles.objects.all().exclude(r_active='N').exclude(r_cd='OWN')
     result=[pobj,dobj,res_list,robj]
     cursor.close()
@@ -718,8 +803,10 @@ def apply_leave(request):
             nof=float(request.POST.get('nof'))
             ltype=request.POST.get('leave_select')
             desc = request.POST.get('rsn')
-            status='A'
+            status='P'
             reqdate = str(datetime.now().strftime('%Y-%m-%d'))
+            queueid = findqueueid(eid)
+
             '''Leave.objects.create(eid=Employee.objects.get(e_id=eid),sdate=sdate,edate=edate,nof=nof,
                                  ltype=ltype,desc=desc,status=status,reqdate=reqdate)
             if ltype=='0':
@@ -733,15 +820,16 @@ def apply_leave(request):
                 Employee.objects.filter(e_id=eid).update(e_el=rem)
             elif ltype=='3':
                 rem=(Employee.objects.get(e_id=eid).e_fl)-nof
-                Employee.objects.filter(e_id=eid).update(e_fl=rem)
+                Employee.objects.filter(e_id=eid).update(e_fl=rem)'''
 
-            
+
+            print('going queue : '+str(queueid))
             logged_in = request.session['eid']
             user=Employee.objects.get(e_id=logged_in)
-            return render(request,'ultimatix/applyleave.html',{'user':user,'success':'Leave request submitted !'})'''
+            return render(request,'ultimatix/applyleave.html',{'user':user,'success':'Leave request submitted !'})
 
-            queueid = findqueueid(eid)
-            return HttpResponse(queueid)
+
+            #return HttpResponse(queueid)
     else:
         try:
             logged_in = request.session['eid']
@@ -755,7 +843,49 @@ def apply_leave(request):
             return redirect('ultimatix:show_login')
 
 def findqueueid(eid):
-    print('called')
+    ob=Project_members.objects.filter(eid_id=eid,pmstatus='Y')
+    if not ob:
+        print('unallocated going to admin : 1022890')
+        return '1022890'
+    title=Project.objects.get(pid=Project_members.objects.get(eid_id=eid,pmstatus='Y').pid_id).ptitle
+    #print('title: '+title)
+    if title=='TCS - MNG':
+        print('going to admin : 1022890')
+        return '1022890'
+    else:
+        pid= Project_members.objects.get(eid_id=eid,pmstatus='Y').pid_id
+        hreid=Project_members.objects.get(rid_id=Project_roles.objects.get(r_cd='MNG').r_id,pid_id=pid, pmstatus='Y').eid_id
+        #print(str(hreid)+" "+str(eid))
+        if str(hreid)==str(eid):
+            hrmeid=Employee_desig.objects.get(ed_did_id=Designation.objects.get(d_cd='HR-M').d_id,
+                                              ed_status='Y').ed_eid_id
+            print('going to hr manager : '+str(hrmeid))
+            return hrmeid
+        else:
+            pmeid=Project_members.objects.get(rid_id=Project_roles.objects.get(r_cd='PM').r_id, pid_id=pid,
+                                        pmstatus='Y').eid_id
+            if str(pmeid)==str(eid):
+                print('going to hr : '+str(hreid))
+                return hreid
+            else:
+                print('going to pm : '+str(pmeid))
+                return pmeid
+
+
+
+def generate_payslip(request):
+
+    try:
+        logged_in = request.session['eid']
+    except:
+        logged_in = False
+    if logged_in:
+        user = Employee.objects.get(e_id=logged_in)
+        return render(request, 'ultimatix/payslip.html', {'user': user})
+    else:
+        request.session['eid'] = None
+        return redirect('ultimatix:show_login')
+
 
 def calendar_view(request):
     user=Employee.objects.get(e_id=config.eid)

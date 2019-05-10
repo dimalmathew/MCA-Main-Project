@@ -19,6 +19,7 @@ path('ultimatix/attendance/',views.mark_attendance,name="mark_attendance"),
 path('ultimatix/attendance/<str:adate>',views.upload_attendance,name="upload_attendance"),
 path('ultimatix/applyleave/',views.apply_leave,name="apply_leave"),
 path('ultimatix/calendar/',views.calendar_view,name="calendar_view"),
+path('ultimatix/payslip/',views.generate_payslip,name="generate_payslip"),
 path('',views.show_login,name="show_login"),
 
 

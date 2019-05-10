@@ -312,7 +312,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     </a>
                     <ul class="sub">
                         <li><a id="leaveapply" href="{% url 'ultimatix:apply_leave'%}">Apply for Leave</a></li>
-                        <li><a href="#">Flot Charts</a></li>
+                        <li><a id="leaverequest" href="#">Requests</a></li>
                     </ul>
                 </li>
                 <li class="sub-menu">
@@ -323,6 +323,15 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     <ul class="sub">
                         <li><a id="attendance_mark" href="{% url 'ultimatix:mark_attendance'%}">Attendance Marking</a></li>
                         <li><a id="view_calendar" href="{% url 'ultimatix:calendar_view'%}">View Calendar</a></li>
+                    </ul>
+                </li>
+                <li class="sub-menu">
+                    <a id="pslip" href="javascript:;">
+                        <i class="fa fa-inr"></i>
+                        <span>Payslip </span>
+                    </a>
+                    <ul class="sub">
+                        <li><a id="view_pslip" href="{% url 'ultimatix:generate_payslip' %}">View</a></li>
                     </ul>
                 </li>
                 <li class="sub-menu">
@@ -338,16 +347,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                         <li><a href="#">Registration</a></li>-->
                     </ul>
                 </li>
-                <!--<li class="sub-menu">
-                    <a href="javascript:;">
-                        <i class="fa fa-envelope"></i>
-                        <span>Mail </span>
-                    </a>
-                    <ul class="sub">
-                        <li><a href="#">Inbox</a></li>
-                        <li><a href="#">Compose Mail</a></li>
-                    </ul>
-                </li>-->
+
                 <!--<li>
                     <a href="#">
                         <i class="fa fa-user"></i>

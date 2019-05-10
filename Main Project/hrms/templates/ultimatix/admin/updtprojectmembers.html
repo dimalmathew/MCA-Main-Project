@@ -115,6 +115,8 @@
                     {% if r.prdesc == 'Project Owner' %}
                     <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
                     <!--<button type="submit" class="btn btn-primary form-control test">Update</button>-->
+                    {%elif r.prdesc == 'Management'%}
+                    <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
                     {%elif r.pmstatus ==  'N' %}
                     <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
                     {%else%}

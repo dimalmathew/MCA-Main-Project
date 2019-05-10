@@ -57,7 +57,7 @@
                 <div class="col-md-6">
 
                     <select  title="Choose Designation" class="form-control" name="desig_select" id="desig_select" required>
-                        <option value="0">All</option>
+                        <!--<option value="0">All</option>-->
                         {% for d in dobj%}
                         <option value="{{d.d_id}}">{{d.d_cd}}</option>
                         {%endfor%}
@@ -75,6 +75,7 @@
                         <option value="{{e.ename}}">{{e.eid}}</option>
                         {%endfor%}
                     </select>
+                    <input type="hidden" value="" id="eid" name="eid">
                 </div>
 
             </div>
@@ -122,6 +123,7 @@ $(document).ready(function(){
     $('#pid').val($('#project_select').children("option:selected").text());
 
     $('#empname').val(($('#emp_select').children("option:selected").val()));
+    $('#eid').val(($('#emp_select').children("option:selected").text()))
 
     $("#project_select").change(function(){
 	    $('#pname').val(($("#project_select").val()));
@@ -130,15 +132,17 @@ $(document).ready(function(){
 
     $("#emp_select").change(function(){
     $('#empname').val(($(this).children("option:selected").val()));
+    $('#eid').val(($('#emp_select').children("option:selected").text()))
 	});
 
-/*    obj1=JSON.parse("{{eobj}}");
-    $("#emp_select").empty();
-    for(var i=0;i<obj1.length;i++){
-    $("#emp_select").append(new Option(obj1[i]));
-    }*/
 
     $("#desig_select").change(function(){
+        var desig_cd=$("#desig_select option:selected").text();
+        if(desig_cd=='HR' || desig_cd=='HR-M'){
+            $('#role_select')[0].selectedIndex = 11;
+        }else{
+          $('#role_select')[0].selectedIndex = 0;
+        }
 	    var desid=$("#desig_select").val();
         var url = $("#allocate_form").attr("allocate-emp-url");
         $.ajax({
@@ -148,17 +152,12 @@ $(document).ready(function(){
 			    desid: desid
 			},
 		    success: function(data){
-/*				obj=JSON.parse(data);
-                $("#emp_select").empty();
-                for(var i=0;i<obj.length;i++){
-                    $("#emp_select").append(new Option(obj[i]));
-                }*/
-           /* alert(data);*/
             $("#emp_select").empty();
                 for(i=0;i<data.length;i++){
                 $("#emp_select").append(new Option(data[i].eid,data[i].ename));
                 }
                 $('#empname').val($("#emp_select option:first").val());
+                $('#eid').val(($('#emp_select').children("option:selected").text()))
 		    }
         });
 	});
@@ -171,6 +170,47 @@ $(document).ready(function(){
     var flname=fname;
     {% endif %}
     $('#username').text(flname);
+
+    $("#submit").click(function(){
+        var f=0;
+        desig_cd=$("#desig_select option:selected").text();
+        role_cd=$("#role_select option:selected").text();
+        if(desig_cd=='HR' || desig_cd=='HR-M') {
+
+            if(role_cd!='MNG'){
+                alert('Project role must be MNG for HR employees');
+                f=1;
+            }
+        }
+
+        if(f!=1){
+            desig_cd=$("#desig_select option:selected").text();
+
+            pname=$('#pname').val();
+/*            alert(desig_cd);
+            alert(pname);*/
+            var t=0;
+            var d=['SC','PC','VP','CEO','HR-M'];
+            for(var i=0;i<d.length;i++){
+                if(desig_cd==d[i]){
+                    t=1;
+                }
+            }
+            if(t==1 && pname!='TCS - MNG'){
+                    alert('Choose TCS Management Project - 1006 (TCS - MNG) for single level employees');
+                    f=1;
+            }
+            if(t==0 && pname=='TCS - MNG'){
+                    alert('Choose TCS Management Project - 1006 (TCS - MNG) for single level employees');
+                    f=1;
+            }
+        }
+        if(f==1){
+		event.preventDefault();
+        }
+
+    });
+
 });
 </script>
 {%endblock%}
