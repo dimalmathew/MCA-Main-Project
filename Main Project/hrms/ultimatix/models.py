@@ -149,3 +149,17 @@ class Leave(models.Model):
 
     def __str__(self):
         return str(self.lid)
+
+class Salarymaster(models.Model):
+    sid=models.AutoField(primary_key=True)
+    bs=models.FloatField(null=True,blank=True)
+    con=models.FloatField(null=True,blank=True)
+    hra=models.FloatField(null=True,blank=True)
+    city=models.FloatField(null=True,blank=True)
+    sundry=models.FloatField(null=True,blank=True)
+    ptax=models.FloatField(null=True,blank=True)
+    pf=models.FloatField(null=True,blank=True)
+    esis=models.FloatField(null=True,blank=True)
+
+    def __str__(self):
+        return str(self.sid)

@@ -5,7 +5,45 @@
 <div class="grid_3 grid_4 w3layouts ">
         <!--<h3 class="hdg">Headings</h3>-->
     <div class="bs-example">
-
+        <form action="{% url 'ultimatix:generate_payslip'%}" method="post" enctype="multipart/form-data">
+            {% csrf_token%}
+            {%if error%}
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="alert alert-danger" id="error">
+                        <strong>Danger!</strong>{{error}}{{e}}
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            {% elif success %}
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="alert alert-success" id="success">
+                        <strong>Success!</strong>{{success}}
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            {%endif%}
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <label for="sdate">Choose a Date</label>
+                    <input type="date" class="form-control" name="sdate" id="sdate">
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <button class="btn btn-primary form-control" name="view" id="view" value="view">View Payslip</button>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </form>
     </div>
 </div>
 

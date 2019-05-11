@@ -1,0 +1,122 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<h2 class="w3ls_head">Leave Requests</h2>
+<div class="grid_3 grid_4 w3layouts">
+    <div class="bs-example">
+        <form action="" method="post">
+            {%csrf_token%}
+            {% if error %}
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="alert alert-danger" id="error">
+                        <strong>Danger!</strong>{{error}}
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            {% elif success %}
+            <div class="form-group row">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div class="alert alert-success" id="success">
+                        <strong>Success!</strong>{{success}}
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            {%endif%}
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th style="color:black;">Leave ID</th>
+                <th style="color:black;">Employee ID</th>
+                <th style="color:black;">Date Range</th>
+                <!--<th style="color:black;">End Date</th>-->
+                <th style="color:black;">Leave Type</th>
+
+                <th style="color:black;">Status</th>
+<!--                <th style="color:black;">Description</th>-->
+                <th style="color:black;">Remarks</th>
+                <th style="color:black;">Acttion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for l in lreqobj %}
+            <tr>
+                <td style="color:black;">{{l.lid}}</a></td>
+                <td style="color:black;">{{l.eid}}</td>
+                <td style="color:black;">{{l.sdate}} - {{l.edate}} ({{l.nof}}) </td>
+                <!--<td style="color:black;">{{l.edate}}</td>-->
+                {% if l.ltype == 0 %}
+                <td style="color:black;">Casual Leave ({{l.desc}})</td>
+                {% elif l.ltype == 1 %}
+                <td style="color:black;">Sick Leave ({{l.desc}})</td>
+                {% elif l.ltype == 2 %}
+                <td style="color:black;">Earned Leave ({{l.desc}})</td>
+                {% elif l.ltype == 3 %}
+                <td style="color:black;">Flexi Leave ({{l.desc}})</td>
+                {%else%}
+                <td style="color:black;">Special Leave</td>
+                {% endif %}
+
+
+                <td style="color:black;">{{l.status}}</td>
+<!--                {% if l.remarks %}
+                <td style="color:black;">{{l.remarks}}</td>
+                {% else%}
+                <td style="color:black;">-</td>
+                {%endif%}-->
+                {% if l.remarks %}
+                <td style="color:black;"><input type="text" class="form-control" name="{{l.lid}}_remarks"  value="{{l.remarks}}"></td>
+                {% else %}
+                <td style="color:black;"><input type="text" class="form-control" name="{{l.lid}}_remarks" value=""></td>
+                {%endif%}
+
+                <td style="color:black;">
+                    {% if l.status == 'P' %}
+                    <button type="submit" class="btn btn-primary form-control" name="submit" value="{{l.lid}}">Approve</button>
+                    <button type="submit" class="btn btn-danger form-control" name="cancel" value="{{l.lid}}">Reject</button><br><br>
+                    <button type="submit" class="form-control" name="fwd" id="fwd" value="{{l.lid}}">Forwrd</button>
+                    <input type="number" class="form-control" name="{{l.lid}}_fwdto">
+                    {% else %}
+                    NA
+                    {%endif%}
+                </td>
+            </tr>
+            {%endfor%}
+
+        </tbody>
+        <!--<tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Office</th>
+                <th>Age</th>
+                <th>Start date</th>
+                <th>Salary</th>
+            </tr>
+        </tfoot>-->
+    </table>
+        </form>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    $('#leave').addClass("active");
+	$('#leaverequest').addClass("active");
+
+    var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
+
+
+});
+</script>
+{%endblock%}

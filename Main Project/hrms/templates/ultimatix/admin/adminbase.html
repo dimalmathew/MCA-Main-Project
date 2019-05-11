@@ -41,9 +41,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
     <a href="#" class="logo">
         Ultimatix
     </a>
-    <!--<div class="sidebar-toggle-box">
+    <div class="sidebar-toggle-box">
         <div class="fa fa-bars"></div>
-    </div>-->
+    </div>
 </div>
 <!--logo end-->
 <!--<div class="nav notify-row" id="top_menu">
@@ -312,7 +312,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     </a>
                     <ul class="sub">
                         <li><a id="leaveapply" href="{% url 'ultimatix:apply_leave'%}">Apply for Leave</a></li>
-                        <li><a id="leaverequest" href="#">Requests</a></li>
+                        <li><a id="leaverequest" href="{% url 'ultimatix:leave_request'%}">Requests</a></li>
                     </ul>
                 </li>
                 <li class="sub-menu">
@@ -342,6 +342,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                     <ul class="sub">
                         <li><a id="desig" href="{% url 'ultimatix:desig_mngt'%}">Designations</a></li>
                         <li><a id="roles" href="{% url 'ultimatix:roles_mngt'%}">Project Roles</a></li>
+                        <li><a id="salary" href="#">Salary Master Table</a></li>
 <!--                        <li><a href="#">Gallery</a></li>
 						<li><a href="#">404 Error</a></li>
                         <li><a href="#">Registration</a></li>-->
@@ -372,7 +373,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
  <!-- footer -->
 		  <div class="footer">
 			<div class="wthree-copyright">
-			  <p>© 2017 Visitors. All rights reserved | Design by <a href="http://w3layouts.com">W3layouts</a></p>
+			  <!--<p>© 2017 Visitors. All rights reserved | Design by <a href="http://w3layouts.com">W3layouts</a></p>-->
+                <p>Copyright © 2019 . All rights reserved | Tata Consultancy Services Ltd.</p>
+                <!--<p>Entry to this site is restricted to employees and affiliates.</p>-->
 			</div>
 		  </div>
   <!-- / footer -->

@@ -58,3 +58,8 @@ class Leave_admin(admin.ModelAdmin):
     list_display = ['lid','eid','sdate','edate','nof','ltype','status','desc','reqdate','remarks','queueid','updtby']
 
 admin.site.register(Leave,Leave_admin)
+
+class Salarymaster_admin(admin.ModelAdmin):
+    list_display = ['sid','bs','con','hra','city','sundry','ptax','pf','esis']
+
+admin.site.register(Salarymaster,Salarymaster_admin)

@@ -9,6 +9,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http40
 from django.shortcuts import render, redirect
 from .models import *
 from datetime import datetime
+import calendar
 #import datetime
 from ultimatix import config
 # Create your views here.
@@ -27,6 +28,12 @@ def home_view(request):
         logged_in = False
 
     if logged_in:
+        date=datetime.now()
+        #date=datetime.strptime('2019-06-30','%Y-%m-%d')
+        if (date.day == calendar.monthrange(date.year, date.month)[1]):
+            print('month end')
+        else:
+            print('not month end')
         user = Employee.objects.get(e_id=logged_in)
         return render(request, 'ultimatix/admin/adminhome.html',{'user':user})
     else:
@@ -807,8 +814,8 @@ def apply_leave(request):
             reqdate = str(datetime.now().strftime('%Y-%m-%d'))
             queueid = findqueueid(eid)
 
-            '''Leave.objects.create(eid=Employee.objects.get(e_id=eid),sdate=sdate,edate=edate,nof=nof,
-                                 ltype=ltype,desc=desc,status=status,reqdate=reqdate)
+            Leave.objects.create(eid=Employee.objects.get(e_id=eid),sdate=sdate,edate=edate,nof=nof,
+                                 ltype=ltype,desc=desc,status=status,reqdate=reqdate,queueid=queueid)
             if ltype=='0':
                 rem=(Employee.objects.get(e_id=eid).e_cl)-nof
                 Employee.objects.filter(e_id=eid).update(e_cl=rem)
@@ -820,7 +827,7 @@ def apply_leave(request):
                 Employee.objects.filter(e_id=eid).update(e_el=rem)
             elif ltype=='3':
                 rem=(Employee.objects.get(e_id=eid).e_fl)-nof
-                Employee.objects.filter(e_id=eid).update(e_fl=rem)'''
+                Employee.objects.filter(e_id=eid).update(e_fl=rem)
 
 
             print('going queue : '+str(queueid))
@@ -837,7 +844,8 @@ def apply_leave(request):
             logged_in = False
         if logged_in:
             user=Employee.objects.get(e_id=logged_in)
-            return render(request,'ultimatix/applyleave.html',{'user':user})
+            lobj=Leave.objects.filter(eid=logged_in)
+            return render(request,'ultimatix/applyleave.html',{'user':user,'lobj':lobj})
         else:
             request.session['eid'] = None
             return redirect('ultimatix:show_login')
@@ -872,6 +880,73 @@ def findqueueid(eid):
                 return pmeid
 
 
+def leave_request(request):
+    if request.method=='POST':
+        logged_in = request.session['eid']
+        if request.POST.get('submit'):
+            lid=request.POST.get('submit')
+            rem=request.POST.get(request.POST.get('submit')+"_remarks")
+            print('remarks :'+rem)
+            Leave.objects.filter(lid=lid).update(status='A',updtby=logged_in,remarks=rem)
+            user = Employee.objects.get(e_id=logged_in)
+            lreqobj=Leave.objects.filter(queueid=logged_in)
+            return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj,'success':' Data saved successfully !'})
+
+        elif request.POST.get('cancel'):
+            lid = request.POST.get('cancel')
+            rem = request.POST.get(request.POST.get('cancel') + "_remarks")
+            Leave.objects.filter(lid=lid).update(status='R', updtby=logged_in,remarks=rem)
+            print('remarks :' + rem)
+            user = Employee.objects.get(e_id=logged_in)
+            lreqobj=Leave.objects.filter(queueid=logged_in)
+            return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj,'success':' Data saved successfully !'})
+
+        elif request.POST.get('fwd'):
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
+            lreqobj = Leave.objects.filter(queueid=logged_in)
+            lid=request.POST.get('fwd')
+            fwdto=str(request.POST.get(request.POST.get('fwd')+"_fwdto"))
+            print('fwdto : '+fwdto)
+            #fwdto=str(request.POST.get(''))
+
+            if fwdto=="":
+                return render(request, 'ultimatix/leaverequest.html', {'user': user, 'lreqobj': lreqobj,'error':'Please enter employee id'})
+                #return HttpResponse('Please enter en employee id'+lid+" "+str(fwdto))
+            else:
+                ob=Employee.objects.filter(e_id=fwdto,e_status='Y')
+                if not ob:
+                    return render(request, 'ultimatix/leaverequest.html',
+                                  {'user': user, 'lreqobj': lreqobj, 'error': 'Please enter a valid employee id'})
+                    #return HttpResponse('please enter a valid employee id'+lid+" "+str(fwdto))
+                else:
+                    ownid=Leave.objects.get(lid=lid).eid_id
+                    if(str(fwdto)==str(ownid)):
+                        return render(request, 'ultimatix/leaverequest.html',
+                                      {'user': user, 'lreqobj': lreqobj, 'error': ' Invalid Employee !'})
+                        #return HttpResponse('Invalid Employee'+lid+" "+str(fwdto))
+                    else:
+                        lid = request.POST.get('fwd')
+                        rem=request.POST.get(request.POST.get('fwd') + "_remarks")
+                        queueid=fwdto
+                        #updt=str(request.session['eid'])
+                        Leave.objects.filter(lid=lid).update(queueid=queueid,updtby=logged_in,
+                                                             remarks=rem)
+                        return render(request, 'ultimatix/leaverequest.html',
+                                      {'user': user, 'lreqobj': lreqobj, 'success': ' Data saved successfully !'})
+                        #return HttpResponse('success : '+lid+" "+rem+" "+queueid+" "+updt)
+    else:
+        try:
+            logged_in = request.session['eid']
+        except:
+            logged_in = False
+        if logged_in:
+            user = Employee.objects.get(e_id=logged_in)
+            lreqobj=Leave.objects.filter(queueid=logged_in)
+            return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj})
+        else:
+            request.session['eid'] = None
+            return redirect('ultimatix:show_login')
 
 def generate_payslip(request):
 
@@ -881,6 +956,7 @@ def generate_payslip(request):
         logged_in = False
     if logged_in:
         user = Employee.objects.get(e_id=logged_in)
+        print('inside salary view')
         return render(request, 'ultimatix/payslip.html', {'user': user})
     else:
         request.session['eid'] = None
