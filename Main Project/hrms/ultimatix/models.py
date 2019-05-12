@@ -163,3 +163,34 @@ class Salarymaster(models.Model):
 
     def __str__(self):
         return str(self.sid)
+
+
+class Wage(models.Model):
+    wid=models.AutoField(primary_key=True)
+    eid=models.ForeignKey(Employee, on_delete=models.CASCADE)
+    sdate=models.DateField(null=True,blank=True)
+    edate=models.DateField(null=True,blank=True)
+    ctc=models.FloatField(null=True,blank=True)
+    ctc_pm=models.FloatField(null=True,blank=True)
+    bs=models.FloatField(null=True,blank=True)
+    conv=models.FloatField(null=True,blank=True)
+    hra=models.FloatField(null=True,blank=True)
+    city=models.FloatField(null=True,blank=True)
+    sundry=models.FloatField(null=True,blank=True)
+    ptax=models.FloatField(null=True,blank=True)
+    pf=models.FloatField(null=True,blank=True)
+    esis=models.FloatField(null=True,blank=True)
+    lop=models.FloatField(null=True,blank=True)
+    status=models.CharField(max_length=1,null=True,blank=True)
+
+    def __str__(self):
+        return str(self.wid)
+
+class News(models.Model):
+    nid=models.AutoField(primary_key=True)
+    head=models.CharField(max_length=150,null=True,blank=True)
+    desc=models.TextField()
+    img=models.ImageField(upload_to='img/news/',default='img/news/abc.png')
+
+    def __str__(self):
+        return str(self.nid)

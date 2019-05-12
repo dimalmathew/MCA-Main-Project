@@ -62,4 +62,15 @@ admin.site.register(Leave,Leave_admin)
 class Salarymaster_admin(admin.ModelAdmin):
     list_display = ['sid','bs','con','hra','city','sundry','ptax','pf','esis']
 
-admin.site.register(Salarymaster,Salarymaster_admin)
+#admin.site.register(Salarymaster,Salarymaster_admin)
+
+class Wage_admin(admin.ModelAdmin):
+    list_display = ['wid','eid','sdate','edate','ctc','ctc_pm',
+                    'bs','conv','hra','city','sundry',
+                    'ptax','pf','esis','lop','status']
+admin.site.register(Wage,Wage_admin)
+
+class News_admin(admin.ModelAdmin):
+    list_display = ['nid','head','desc','img']
+
+admin.site.register(News,News_admin)

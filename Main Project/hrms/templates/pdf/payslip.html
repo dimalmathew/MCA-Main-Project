@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <title>Title</title>
+        <style type="text/css">
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+                color: #007cae;
+            }
+            .title {
+                font-size: 22px;
+                font-weight: 100;
+               /* text-align: right;*/
+               padding: 10px 20px 0px 20px;
+            }
+            .title span {
+                color: #007cae;
+            }
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+            }
+            .hrItem {
+                border: none;
+                height: 1px;
+                /* Set the hr color */
+                color: #333; /* old IE */
+                background-color: #fff; /* Modern Browsers */
+            }
+            .empdata{
+                margin-left: 60px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='wrapper'>
+            <div class='header'>
+                <p class='title'>Tata Consultancy Services Ltd.</p>
+            </div>
+        </div>
+        <div class='details'>
+            Payslip<br>
+            {{mnyr}}
+            <hr class='hrItem' />
+        </div>
+        <div class="empdata">
+            <table style="">
+                <tr>
+                    <td>Name</td>
+                    <td>{{name}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Employee Id</td>
+                    <td>{{eid}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Designation</td>
+                    <td>{{desig}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>Annual Salary</td>
+                    <td>{{ctc}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+        </div><br>
+            <div>
+                <table style="border:1px solid black;padding:4px;">
+                  <tr>
+                    <th colspan="2">Earnings</th>
+                    <th colspan="2">Deductions</th>
+                  </tr>
+                  <tr>
+                    <td>Basic Salary</td>
+                      <td>{{bs}}</td>
+                      <td>Provident Fund</td>
+                      <td>{{pf}}</td>
+                  </tr>
+                  <tr>
+                    <td>Conveyance Non Taxable</td>
+                       <td>{{conv}}</td>
+                      <td>ESIS Deduction</td>
+                       <td>{{esis}}</td>
+                  </tr>
+                  <tr>
+                    <td>House Rent allowance</td>
+                      <td>{{hra}}</td>
+                      <td>Performance Tax</td>
+                      <td>{{ptax}}</td>
+                  </tr>
+                    <tr>
+                    <td>City Allowance</td>
+                      <td>{{city}}</td>
+                    <td colspan="2"></td>
+
+                  </tr>
+                    <tr>
+                    <td>Sundry Medical</td>
+                      <td>{{sundry}}</td>
+                      <td colspan="2"></td>
+                  </tr>
+                    <tr>
+                        <td><b>Total Earnings</b></td>
+                        <td><b>{{earn}}</b></td>
+                      <td><b>Total Deductions</b></td>
+                        <td><b>{{ded}}</b></td>
+                  </tr>
+                </table>
+
+               <br> <b><p>Loss of Pay : {{lop}}</p></b>
+            </div><br><br>
+        <div style="margin-left:90px;">
+            <table style="border:1px solid black;padding:4px;" width="400">
+                    <tr>
+                    <th >Net Pay (INR)</th>
+                    <th >{{fin}}</th>
+                    </tr>
+                </table>
+        </div>
+        </div>
+    </body>
+</html>

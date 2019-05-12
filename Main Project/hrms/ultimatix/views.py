@@ -7,11 +7,15 @@ from django.db import connection,DatabaseError
 from django.db.models import Max
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
+from django.template.loader import get_template
+
+from ultimatix.utils import render_to_pdf
 from .models import *
 from datetime import datetime
 import calendar
 #import datetime
 from ultimatix import config
+import numpy as np
 # Create your views here.
 def dictfetchall(cursor):
     """Return all rows from a cursor as a dict"""
@@ -29,9 +33,99 @@ def home_view(request):
 
     if logged_in:
         date=datetime.now()
-        #date=datetime.strptime('2019-06-30','%Y-%m-%d')
+        #date=datetime.strptime('2019-04-30','%Y-%m-%d')
         if (date.day == calendar.monthrange(date.year, date.month)[1]):
-            print('month end')
+            ob=Employee.objects.all().exclude(e_id='1022890')
+            ed=str(calendar.monthrange(date.year, date.month)[1])
+            yr=str(date.year)
+            mn=str(date.month)
+            if len(mn)==1:
+                mn='0'+mn
+            sdate=yr+"-"+mn+"-01"
+            #print(sdate+" "+edate)
+            sm=yr+"-"+mn
+            #em=yr+"-"+str(date.month+1)
+            yr2=str(date.year)
+            #print('date.month'+str(date.month))
+            if date.month==12:
+                mn2='01'
+                yr2=str(date.year+1)
+            else:
+                mn2=str(date.month+1)
+                if len(mn2)==1:
+                    mn2='0'+mn2
+            em=yr2+"-"+mn2
+            edate = yr + "-" + mn + "-" + ed
+            print(sdate+" "+edate)
+            print(sm + " "+em)
+
+            busdays=np.busday_count(sm,em)
+            print(busdays)
+            cursor = connection.cursor()
+            for o in ob:
+                #print(o.e_id)
+
+                sql='''
+                select count(*) from ultimatix_timesheet where eid_id=%s and tdate >=%s
+                and tdate<=%s and tstate='P'
+                '''
+                cursor.execute(sql,[o.e_id,sdate,edate])
+                res=cursor.fetchone()
+                p=int(res[0])
+
+                sql='''
+                select count(*) from ultimatix_timesheet where eid_id=%s and tdate >=%s
+                and tdate<=%s and tstate='H'                
+                '''
+                cursor.execute(sql,[o.e_id,sdate,edate])
+                res=cursor.fetchone()
+                h=0.5*int(res[0])
+
+                sql='''
+                select count(*) from ultimatix_timesheet where eid_id=%s and tdate >=%s
+                and tdate<=%s and tstate='A'                
+                '''
+                cursor.execute(sql,[o.e_id,sdate,edate])
+                res=cursor.fetchone()
+                a=int(res[0])
+
+                sql='''
+                select sum(nof) as sum from ultimatix_leave where eid_id=%s and sdate>=%s and edate<=%s
+                and status='C'            
+                '''
+                cursor.execute(sql,[o.e_id,sdate,edate])
+                #cursor.execute(sql)
+                res=cursor.fetchone()
+                #print(str(res))
+                #print(int(res[0]))
+                l=0
+                if res[0]:
+                    #print('record for : '+str(o.e_id))
+                    l=int(res[0])
+                #if str(o.e_id)=='1022892':
+                tot=(p+h)+(a-l)
+                print(str(p)+" "+str(h)+" "+str(a)+" "+str(l)+" "+str(tot))
+                ctc= float(Employee_sal.objects.get(es_eid_id=o.e_id,es_status='Y').es_ctc)
+                ctc_pm=float(ctc/12)
+                ctc_pd=float(ctc_pm/int(calendar.monthrange(date.year, date.month)[1]))
+                lop=0
+                if tot<busdays:
+                    lop=(float(busdays)-float(tot))*ctc_pd
+                bs = ctc_pm * .40
+                conv = ctc_pm * .18
+                hra = ctc_pm * .12
+                city = ctc_pm * .10
+                sundry = ctc_pm * .06
+                ptax = ctc_pm * .04
+                pf = ctc_pm * .02
+                esis = ctc_pm * .08
+                r=Wage.objects.filter(eid_id=o.e_id,sdate=sdate,edate=edate,status='Y')
+                if not r:
+                    Wage.objects.create(eid_id=o.e_id,sdate=sdate,edate=edate,ctc=ctc,ctc_pm=round(ctc_pm,2),
+                                        bs=round(float(bs),2),conv=round(float(conv),2),hra=round(float(hra),2),city=round(float(city),2),
+                                        sundry=round(float(sundry),2),ptax=round(float(ptax),2),pf=round(float(pf),2),
+                                        esis=round(float(esis),2),lop=round(float(lop),2),status='Y')
+            cursor.close()
         else:
             print('not month end')
         user = Employee.objects.get(e_id=logged_in)
@@ -731,6 +825,8 @@ def proejctmembers_view(request,pid):
 
 
 def mark_attendance(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
     if request.method=='POST':
         if request.POST.get('validate'):
             adate=request.POST.get('adate')
@@ -783,17 +879,17 @@ def mark_attendance(request):
                         else:
                             Timesheet.objects.filter(eid=Employee.objects.get(e_id=data_list['eid']), tdate=adate).update(thours=data_list['total_working'],tstate=data_list['attendance'])
 
-                    return render(request,'ultimatix/upload_attendance.html',{'adate':adate,'excel_list':excel_list})
+                    return render(request,'ultimatix/upload_attendance.html',{'adate':adate,'excel_list':excel_list,'user':user})
                 except Exception as e:
                     print('Exception : '+str(e))
-                    return render(request, 'ultimatix/attendance.html', {'error': ' Some error occured while processing the data !','e':e})
+                    return render(request, 'ultimatix/attendance.html', {'error': ' Some error occured while processing the data !','e':e,'user':user})
                 #return redirect('ultimatix:upload_attendance', adate)
             else:
-                return render(request, 'ultimatix/attendance.html',{'error':' Invalid File Format !'})
+                return render(request, 'ultimatix/attendance.html',{'error':' Invalid File Format !','user':user})
         elif request.POST.get('submit'):
             return HttpResponse('sumbit')
     else:
-        return render(request,'ultimatix/attendance.html')
+        return render(request,'ultimatix/attendance.html',{'user':user})
 
 
 
@@ -829,11 +925,12 @@ def apply_leave(request):
                 rem=(Employee.objects.get(e_id=eid).e_fl)-nof
                 Employee.objects.filter(e_id=eid).update(e_fl=rem)
 
-
+            logged_in = request.session['eid']
+            lobj = Leave.objects.filter(eid=logged_in)
             print('going queue : '+str(queueid))
             logged_in = request.session['eid']
             user=Employee.objects.get(e_id=logged_in)
-            return render(request,'ultimatix/applyleave.html',{'user':user,'success':'Leave request submitted !'})
+            return render(request,'ultimatix/applyleave.html',{'user':user,'success':'Leave request submitted !','lobj':lobj})
 
 
             #return HttpResponse(queueid)
@@ -949,18 +1046,88 @@ def leave_request(request):
             return redirect('ultimatix:show_login')
 
 def generate_payslip(request):
-
-    try:
+    if request.method=='POST':
         logged_in = request.session['eid']
-    except:
-        logged_in = False
-    if logged_in:
         user = Employee.objects.get(e_id=logged_in)
-        print('inside salary view')
-        return render(request, 'ultimatix/payslip.html', {'user': user})
+        adate=request.POST.get('sdate')
+        r=Wage.objects.filter(eid_id=logged_in,sdate__lte=adate,
+                              edate__gte=adate,status='Y')
+        cursor = connection.cursor()
+        if r:
+            sql = '''
+            select ue.e_id, (ue.e_fname ||' ' ||ifnull(ue.e_lname,'')) as Name, ud.d_desc, ues.es_ctc
+            from ultimatix_employee ue
+            left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
+            left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+            left outer join ultimatix_employee_sal ues on ues.es_eid_id = ue.e_id
+            where ued.ed_status = 'Y' and ues.es_status = 'Y' and ue.e_id = %s
+            '''
+            cursor.execute(sql,[logged_in])
+            res=cursor.fetchone()
+            t={}
+            t['eid']=res[0]
+            t['name']=res[1]
+            t['desig']=res[2]
+            t['ctc']=res[3]
+
+
+            sql='''
+            select bs,conv,hra,city,sundry,ptax,pf,esis,lop from ultimatix_wage where eid_id=%s and 
+            status='Y' and sdate<=%s and edate>=%s
+            '''
+            cursor.execute(sql, [logged_in,adate,adate])
+            res = cursor.fetchone()
+            t['bs']=res[0]
+            t['conv']=res[1]
+            t['hra']=res[2]
+            t['city']=res[3]
+            t['sundry']=res[4]
+            t['ptax']=res[5]
+            t['pf']=res[6]
+            t['esis']=res[7]
+            t['lop']=res[8]
+            t['earn']=float(res[0])+float(res[1])+float(res[2])+float(res[3])+float(res[4])
+            t['ded']=float(res[5])+float(res[6])+float(res[7])
+            t['fin']=round((float(res[0])+float(res[1])+float(res[2])+float(res[3])+float(res[4]))-float(res[8]),2)
+            cursor.close()
+
+            date=datetime.strptime(adate,'%Y-%m-%d')
+            mnyr = date.strftime('%B') + ", " + date.strftime('%Y')
+            t['mnyr']=mnyr
+            pdf = render_to_pdf('pdf/payslip.html', t)
+            return HttpResponse(pdf, content_type='application/pdf')
+            #return HttpResponse('record present')
+        else:
+            return render(request, 'ultimatix/payslip.html', {'user': user,'error':'Payslip is not yet generated !'})
+            #return HttpResponse('record not present')
+        '''cursor = connection.cursor()
+        sql='''
+
+        '''
+        cursor.execute(sql)
+        res=cursor.fetchone()
+        #print('res[0]:'+ str(res[0]))
+        for r in res:
+            t={}
+            t['lid']=str(res[0])
+            t['sdate']=str(res[1])
+            t['edate']=str(res[2])
+        pdf = render_to_pdf('pdf/payslip.html', t)
+        cursor.close()
+        return HttpResponse(pdf, content_type='application/pdf')'''
+
     else:
-        request.session['eid'] = None
-        return redirect('ultimatix:show_login')
+        try:
+            logged_in = request.session['eid']
+        except:
+            logged_in = False
+        if logged_in:
+            user = Employee.objects.get(e_id=logged_in)
+            print('inside salary view')
+            return render(request, 'ultimatix/payslip.html', {'user': user})
+        else:
+            request.session['eid'] = None
+            return redirect('ultimatix:show_login')
 
 
 def calendar_view(request):
@@ -969,3 +1136,9 @@ def calendar_view(request):
 '''def deallocate_view(request,pmid):
     if pmid:
         return render(request,'ultimatix/admin/deallocate.html',{'pmid':pmid})'''
+
+
+def news_feed(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    return render(request,'ultimatix/admin/news.html',{'user':user})

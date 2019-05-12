@@ -34,7 +34,14 @@ $(document).ready(function(){
 	$('#attendance').addClass("active");
 	$('#attendance_mark').addClass("active");
 
-
+        var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
 });
 </script>
 {%endblock%}
