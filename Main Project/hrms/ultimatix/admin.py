@@ -26,7 +26,7 @@ admin.site.register(Employee,Employee_admin)
 class id_select_admin(admin.ModelAdmin):
     list_display = ['id_desc','id_val']
 
-admin.site.register(id_select,id_select_admin)
+#admin.site.register(id_select,id_select_admin)
 
 class Employee_desig_admin(admin.ModelAdmin):
     list_display = ['ed_id','ed_eid','ed_did','ed_sdate','ed_edate','ed_status']

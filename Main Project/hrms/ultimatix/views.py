@@ -128,8 +128,9 @@ def home_view(request):
             cursor.close()
         else:
             print('not month end')
+        news = News.objects.all().order_by('-nid')
         user = Employee.objects.get(e_id=logged_in)
-        return render(request, 'ultimatix/admin/adminhome.html',{'user':user})
+        return render(request, 'ultimatix/admin/adminhome.html',{'user':user,'news':news})
     else:
         request.session['eid'] = None
         return redirect('ultimatix:show_login')
@@ -1141,4 +1142,11 @@ def calendar_view(request):
 def news_feed(request):
     logged_in = request.session['eid']
     user = Employee.objects.get(e_id=logged_in)
-    return render(request,'ultimatix/admin/news.html',{'user':user})
+    if request.method=='POST':
+        head=request.POST.get('head')
+        desc=request.POST.get('desc')
+        img=request.FILES['myfile']
+        News.objects.create(head=head,desc=desc,img=img)
+        return render(request, 'ultimatix/admin/news.html', {'success': 'News added successfully !','user':user})
+    else:
+        return render(request,'ultimatix/admin/news.html',{'user':user})
