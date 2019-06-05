@@ -22,6 +22,9 @@ path('ultimatix/leaverequest/',views.leave_request,name="leave_request"),
 path('ultimatix/calendar/',views.calendar_view,name="calendar_view"),
 path('ultimatix/payslip/',views.generate_payslip,name="generate_payslip"),
 path('ultimatix/newsfeed/',views.news_feed,name='news_feed'),
+
+path('ultimatix/empview_projects',views.empview_projects,name="empview_projects"),
+
 path('',views.show_login,name="show_login"),
 
 

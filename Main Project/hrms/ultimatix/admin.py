@@ -19,7 +19,7 @@ admin.site.register(Project_roles,Project_rolesadmin)
 
 
 class Employee_admin(admin.ModelAdmin):
-    list_display=['e_id','e_fname','e_lname','e_sname','e_dob','e_bgroup','e_mstatus','e_nationality','e_disb','e_gender','e_paddr1','e_paddr2','e_paddr3','e_caddr1','e_caddr2','e_caddr3','e_email','e_mnumber','e_doj','e_qfn','e_prev_exp','e_prev_cmp','e_cl','e_sl','e_el','e_fl','e_status','e_pwd']
+    list_display=['e_id','e_fname','e_lname','e_sname','e_dob','e_bgroup','e_mstatus','e_nationality','e_disb','e_gender','e_paddr1','e_paddr2','e_paddr3','e_caddr1','e_caddr2','e_caddr3','e_email','e_mnumber','e_doj','e_qfn','e_prev_exp','e_prev_cmp','e_cl','e_sl','e_el','e_fl','e_status','e_pwd','e_img']
 
 admin.site.register(Employee,Employee_admin)
 

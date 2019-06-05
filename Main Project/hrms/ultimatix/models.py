@@ -55,6 +55,7 @@ class Employee(models.Model):
     e_fl=models.FloatField(null=True,blank=True)
     e_status=models.CharField(max_length=1)
     e_pwd=models.CharField(max_length=100)
+    e_img=models.ImageField(upload_to='img/employee/',default='img/employee/user.png')
 
     def __str__(self):
         return str(self.e_id)
@@ -194,3 +195,4 @@ class News(models.Model):
 
     def __str__(self):
         return str(self.nid)
+

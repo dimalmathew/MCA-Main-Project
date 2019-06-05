@@ -79,6 +79,9 @@ $(document).ready(function(){
 
     $('#example').DataTable();
 
+        var imgurl="{{user.e_img.url}}";
+	$('#user_img').attr('src',imgurl);
+
     	var fname="{{user.e_fname}}";
     {% if user.e_lname %}
     var lname="{{user.e_lname}}";

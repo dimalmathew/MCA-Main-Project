@@ -1,0 +1,38 @@
+{% extends 'ultimatix/employee/empbase.html'%}
+
+{%block body %}
+<style>
+	.img{
+	width:400px;
+	height:400px;
+	}
+
+</style>
+
+		<!--<h2 class="w3ls_head">Tata Consultacy Services Pvt Ltd.</h2>-->
+			<div class="grid_3 grid_4 w3layouts position-center">
+<!--				<h3 class="hdg">Headings</h3>-->
+				<div class="bs-example">
+					{%for n in news%}
+
+					  <div class="card" style="">
+						  {%if n.head %}
+						<div class="card-header"><h2>{{n.head}}</h2><br></div>
+						  {%endif%}
+    					<div class="card-body" style="border:2px solid black;">
+							<img src="{{n.img.url}}" style="border-radius: 2px;" width="100%"></div>
+					  </div>
+					<div class="card-footer">
+						<br><p style="text-align: justify;line-height: 160%;color:black">{{n.desc}}</p>
+					</div>
+
+					{%endfor%}
+
+				</div>
+			</div>
+<script>
+$(document).ready(function(){
+$('#hrhome').addClass("active");
+});
+</script>
+{% endblock %}

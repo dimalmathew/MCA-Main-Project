@@ -62,6 +62,12 @@
 $(document).ready(function(){
 $('#home').addClass("active");
 
+
+	{% if user.e_img %}
+	var imgurl="{{user.e_img.url}}";
+	$('#user_img').attr('src',imgurl);
+	{%endif%}
+
 	var fname="{{user.e_fname}}";
     {% if user.e_lname %}
     var lname="{{user.e_lname}}";

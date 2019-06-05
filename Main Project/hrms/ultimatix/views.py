@@ -1,4 +1,4 @@
-#import datetime
+
 import json
 import os
 
@@ -7,7 +7,6 @@ from django.db import connection,DatabaseError
 from django.db.models import Max
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
-from django.template.loader import get_template
 
 from ultimatix.utils import render_to_pdf
 from .models import *
@@ -26,6 +25,7 @@ def dictfetchall(cursor):
     ]
 
 def home_view(request):
+    cursor = connection.cursor()
     try:
         logged_in = request.session['eid']
     except:
@@ -61,7 +61,7 @@ def home_view(request):
 
             busdays=np.busday_count(sm,em)
             print(busdays)
-            cursor = connection.cursor()
+
             for o in ob:
                 #print(o.e_id)
 
@@ -125,15 +125,36 @@ def home_view(request):
                                         bs=round(float(bs),2),conv=round(float(conv),2),hra=round(float(hra),2),city=round(float(city),2),
                                         sundry=round(float(sundry),2),ptax=round(float(ptax),2),pf=round(float(pf),2),
                                         esis=round(float(esis),2),lop=round(float(lop),2),status='Y')
-            cursor.close()
+
         else:
             print('not month end')
         news = News.objects.all().order_by('-nid')
         user = Employee.objects.get(e_id=logged_in)
-        return render(request, 'ultimatix/admin/adminhome.html',{'user':user,'news':news})
+        sql = '''
+        select ud.d_role
+        from ultimatix_employee ue
+        left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
+        left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+        where ued.ed_status = 'Y' and ue.e_id = %s
+        '''
+        cursor.execute(sql, [logged_in])
+        res = cursor.fetchone()
+        if str(res[0])=='0':
+            role=0
+        elif str(res[0])=='2':
+            role=2
+        elif str(res[0])=='1':
+            role=1
+        cursor.close()
+        if role==0:
+            return render(request, 'ultimatix/admin/adminhome.html',{'user':user,'news':news})
+        else:
+            return render(request,'ultimatix/employee/emphome.html',{'user':user,'news':news,'role':role})
     else:
         request.session['eid'] = None
+        cursor.close()
         return redirect('ultimatix:show_login')
+
 
 
 
@@ -1150,3 +1171,19 @@ def news_feed(request):
         return render(request, 'ultimatix/admin/news.html', {'success': 'News added successfully !','user':user})
     else:
         return render(request,'ultimatix/admin/news.html',{'user':user})
+
+
+def empview_projects(request):
+    try:
+        logged_in = request.session['eid']
+    except:
+        logged_in = False
+    if logged_in:
+        user = Employee.objects.get(e_id=logged_in)
+        pobj=Project.objects.all()
+        return render(request,'ultimatix/employee/viewprojects.html',{'pobj':pobj,'user':user})
+    else:
+        request.session['eid'] = None
+        return redirect('ultimatix:show_login')
+def findrole(eid):
+    cursor=connection.cursor()
