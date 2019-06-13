@@ -1,0 +1,62 @@
+{% extends 'ultimatix/employee/empbase.html'%}
+<!-- Latest compiled and minified CSS -->
+
+{%block body %}
+<style>
+    tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+</style>
+<link rel="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<h2 class="w3ls_head">Employee Details</h2>
+<div class="grid_3 grid_4 w3layouts ">
+        <!--<h3 class="hdg">Headings</h3>-->
+    <div class="bs-example">
+
+        <table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th style="color:black;">Employee Id</th>
+                <th style="color:black;">Name</th>
+                <th style="color:black;">Gender</th>
+                <th style="color:black;">Designation</th>
+                <th style="color:black;">E-mail</th>
+                <th style="color:black;">Qualification</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in eobj %}
+            <tr>
+                <td style="color:black;">{{e.eid}}</a></td>
+                <td style="color:black;">
+                    <img src="/media/{{e.img}}" width="42;height:42px;" style="border-radius: 50%;border-style:solid;border-width:1px;border-color: black"/> {{e.name}}
+                </td>
+                <td style="color:black;">{{e.gender}}</td>
+                <td style="color:black;">{{e.desig}}</td>
+                <td style="color:black;">{{e.email}}</td>
+                <td style="color:black;">{{e.qfn}}</td>
+            </tr>
+            {%endfor%}
+
+        </tbody>
+    </table>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+	$('#employee').addClass("active");
+	$('#emp_dtl').addClass("active");
+
+    $('#example').DataTable();
+});
+</script>
+<!--$('#example').DataTable();-->
+{% endblock %}

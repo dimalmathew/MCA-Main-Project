@@ -1,0 +1,75 @@
+{% extends 'ultimatix/employee/empbase.html'%}
+
+{%block body %}
+<style>
+    .c2{
+    width:90px;height:55px;
+    border-style:solid;border-width:1px;
+    background:none;
+    display: inline-block;
+    margin-top:1px;
+    margin-left:-3px;
+    text-align:center;
+    padding-top:1%;
+    font-weight: bold;
+    }
+
+</style>
+<h2 class="w3ls_head">calendar</h2>
+<div class="grid_3 grid_4 w3layouts">
+    <div class="bs-example">
+        <!--<table id="example" class="table table-striped table-bordered" style="width:100%">
+        <thead>
+            <tr>
+                <th style="color:black;">Monday</th>
+                <th style="color:black;">Tuesday</th>
+                <th style="color:black;">Wednesday</th>
+                <th style="color:black;">Thursday</th>
+                <th style="color:black;">Friday</th>
+                <th style="color:black;">Saturday</th>
+                <th style="color:black;">Sunday</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+            {% for d in calendar_list %}
+                    <td>{{d}}</td>
+            {% endfor %}
+            </tr>
+        </tbody>
+        </table>-->
+        <div class="row">
+            <div class="c2" >Mon</div>
+            <div class="c2" >Tue</div>
+            <div class="c2" >Wed</div>
+            <div class="c2" >Thu</div>
+            <div class="c2" >Fri</div>
+            <div class="c2" >Sat</div>
+            <div class="c2" >Sun</div>
+            <br>
+            {% for obj in calendar_list %}
+                {% if obj == 0 %}
+                <div class="c2"><label value="{{obj}}"></label></div>
+                {%else%}
+                    {% if forloop.counter|add:"1"|divisibleby:"7" or forloop.counter|divisibleby:"7" %}
+                            <div class="c2" style="background:#f05050;">{{obj}}</div>
+                    {%else%}
+                        <div class="c2">{{obj}}</div>
+                    {%endif%}
+                {%endif%}
+                {% if forloop.counter|divisibleby:"7" %}
+                <br style="margin:0;">
+                {%endif%}
+
+            {%endfor%}
+        </div>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+	$('#timesheet').addClass("active");
+	$('#timesheet_view').addClass("active");
+
+});
+</script>
+{%endblock%}

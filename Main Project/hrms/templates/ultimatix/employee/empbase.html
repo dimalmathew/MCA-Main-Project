@@ -7,6 +7,8 @@
 <meta name="keywords" content="Visitors Responsive web template, Bootstrap Web Templates, Flat Web Templates, Android Compatible web template, 
 Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyEricsson, Motorola web design" />
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); } </script>
+
+<link rel="shortcut icon" href="{% static 'ultimatix/web/images/browsericon.jpg'%}" type="image/x-icon" />
 <!-- bootstrap-css -->
 <!--<link rel="stylesheet" href="{% static 'ultimatix/web/css/bootstrap.min.css'%}" >-->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -237,7 +239,7 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
         <!-- user login dropdown start-->
         <li class="dropdown">
             <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                <img id="user_img" alt="" width="32" height="32" src="{{user.e_img.url}}" style="border:1px solid black;">
+                <img id="user_img" alt="" width="32" height="32" src="{{user.e_img.url}}" style="border-style:solid;border-width:1px;border-color: black;">
                 <span class="username" id="username">
                     {% if user.e_lname %}
                     {{user.e_fname}} {{user.e_lname}}
@@ -267,9 +269,8 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
         <!-- sidebar menu start-->
         <div class="leftside-navigation">
             <ul class="sidebar-menu" id="nav-accordion">
-            {% if role == 1 %}
             <li>
-                <a id="hrhome" href="{% url 'ultimatix:home_view'%}">
+                <a id="home" href="{% url 'ultimatix:home_view'%}">
                     <i class="fa fa-dashboard"></i>
                     <span>Home</span>
                 </a>
@@ -281,12 +282,52 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 </a>
                 <ul class="sub">
                     <li><a id="project_dtl" href="{% url 'ultimatix:empview_projects'%}">Project Details</a></li>
-                    <li><a id="emp_alloc" href="{% url 'ultimatix:emp_allocate'%}">Employee Allocation</a></li>
+                    <li><a id="project_mine" href="{% url 'ultimatix:empmyproject'%}">My Allocation</a></li>
                 </ul>
             </li>
-            {% elif role == 2 %}
-
-            {% endif %}
+            <li class="sub-menu">
+                <a id="employee" href="javascript:;">
+                    <i class="fa fa-users"></i>
+                    <span>Employee</span>
+                </a>
+                <ul class="sub">
+                    <li><a id="emp_dtl" href="{% url 'ultimatix:empdetails'%}">Employee Details</a></li>
+                    {% if role == 2 %}
+                    <li><a id="#" href="#">Update </a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="sub-menu">
+                <a id="leave" href="javascript:;">
+                    <i class=" fa fa-edit"></i>
+                    <span>Leave</span>
+                </a>
+                <ul class="sub">
+                    <li><a id="leave_apply" href="{% url 'ultimatix:empleave'%}">Apply For Leave</a></li>
+                    <li><a id="leave_approve" href="{% url 'ultimatix:empleavereq'%}">Leave Requests</a></li>
+                </ul>
+            </li>
+            <li class="sub-menu">
+                <a id="timesheet" href="javascript:;">
+                    <i class=" fa fa-calendar"></i>
+                    <span>Timesheet</span>
+                </a>
+                <ul class="sub">
+                    <li><a id="timesheet_view" href="{% url 'ultimatix:empcalendar'%}">View Calendar</a></li>
+                    {% if role == 2 %}
+                    <li><a id="timesheet_update" href="{% url 'ultimatix:emptsupdt'%}">Update Timsheet</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="sub-menu">
+                <a id="payslip" href="javascript:;">
+                    <i class=" fa fa-inr"></i>
+                    <span>Payslip</span>
+                </a>
+                <ul class="sub">
+                    <li><a id="payslip_view" href="{% url 'ultimatix:emppayslip'%}">View Payslip</a></li>
+                </ul>
+            </li>
             </ul>
         </div>
         <!-- sidebar menu end-->

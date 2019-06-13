@@ -1008,22 +1008,42 @@ def leave_request(request):
             print('remarks :'+rem)
             Leave.objects.filter(lid=lid).update(status='A',updtby=logged_in,remarks=rem)
             user = Employee.objects.get(e_id=logged_in)
-            lreqobj=Leave.objects.filter(queueid=logged_in)
+            #lreqobj=Leave.objects.filter(queueid=logged_in)
+            lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
             return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj,'success':' Data saved successfully !'})
 
         elif request.POST.get('cancel'):
             lid = request.POST.get('cancel')
             rem = request.POST.get(request.POST.get('cancel') + "_remarks")
+
+            nof=float(Leave.objects.get(lid=lid).nof)
+            ltype=Leave.objects.get(lid=lid).ltype
+            eid=Leave.objects.get(lid=lid).eid_id
+            r=-1.0
+            if ltype == 0:
+                r = (Employee.objects.get(e_id=eid).e_cl) + nof
+                Employee.objects.filter(e_id=eid).update(e_cl=r)
+            elif ltype == 1:
+                r = (Employee.objects.get(e_id=eid).e_sl) + nof
+                Employee.objects.filter(e_id=eid).update(e_sl=r)
+            elif ltype == 2:
+                r = (Employee.objects.get(e_id=eid).e_el) + nof
+                Employee.objects.filter(e_id=eid).update(e_el=r)
+            elif ltype == 3:
+                r = (Employee.objects.get(e_id=eid).e_fl) + nof
+                Employee.objects.filter(e_id=eid).update(e_fl=r)
+
+
             Leave.objects.filter(lid=lid).update(status='R', updtby=logged_in,remarks=rem)
             print('remarks :' + rem)
             user = Employee.objects.get(e_id=logged_in)
-            lreqobj=Leave.objects.filter(queueid=logged_in)
+            lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
             return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj,'success':' Data saved successfully !'})
 
         elif request.POST.get('fwd'):
             logged_in = request.session['eid']
             user = Employee.objects.get(e_id=logged_in)
-            lreqobj = Leave.objects.filter(queueid=logged_in)
+            lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
             lid=request.POST.get('fwd')
             fwdto=str(request.POST.get(request.POST.get('fwd')+"_fwdto"))
             print('fwdto : '+fwdto)
@@ -1061,7 +1081,7 @@ def leave_request(request):
             logged_in = False
         if logged_in:
             user = Employee.objects.get(e_id=logged_in)
-            lreqobj=Leave.objects.filter(queueid=logged_in)
+            lreqobj=Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
             return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj})
         else:
             request.session['eid'] = None
@@ -1179,11 +1199,354 @@ def empview_projects(request):
     except:
         logged_in = False
     if logged_in:
+        r=findrole(logged_in)
         user = Employee.objects.get(e_id=logged_in)
         pobj=Project.objects.all()
-        return render(request,'ultimatix/employee/viewprojects.html',{'pobj':pobj,'user':user})
+        return render(request,'ultimatix/employee/viewprojects.html',{'pobj':pobj,'user':user,'role':r})
     else:
         request.session['eid'] = None
         return redirect('ultimatix:show_login')
-def findrole(eid):
+
+def findrole(logged_in):
     cursor=connection.cursor()
+    sql = '''
+    select ud.d_role
+    from ultimatix_employee ue
+    left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
+    left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+    where ued.ed_status = 'Y' and ue.e_id = %s
+    '''
+    cursor.execute(sql, [logged_in])
+    res = cursor.fetchone()
+    if str(res[0]) == '0':
+        role = 0
+    elif str(res[0]) == '2':
+        role = 2
+    elif str(res[0]) == '1':
+        role = 1
+    cursor.close()
+    return role
+
+def empproejctmembers_view(request,pid):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    if pid:
+        cursor = connection.cursor()
+        p = Project.objects.get(pid=pid)
+        sql = """
+        SELECT pm.pmid,e.e_id, (e.e_fname||" "||ifnull(e.e_lname,"")), pr.r_desc, pm.pmsdate, pm.pmedate, pm.pmstatus
+        FROM ultimatix_project p
+        LEFT OUTER JOIN ultimatix_project_members pm ON pm.pid_id = p.pid
+        LEFT OUTER JOIN ultimatix_project_roles pr ON pr.r_id = pm.rid_id
+        LEFT OUTER JOIN ultimatix_employee e ON e.e_id = pm.eid_id
+        WHERE p.pid=%s order by pr.r_id DESC 
+        """
+        cursor.execute(sql, [pid])
+        res = cursor.fetchall()
+        res_list = []
+        for r in res:
+            t = {}
+            t['pmid'] = str(r[0])
+            t['eid'] = str(r[1])
+            t['name'] = str(r[2])
+            t['prdesc'] = str(r[3])
+            t['pmsdate'] = str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
+            if not str(r[5]):
+                t['pmedate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
+            else:
+                t['pmedate'] = str(r[5])
+            t['pmstatus'] = str(r[6])
+            res_list.append(t)
+        r = findrole(logged_in)
+        cursor.close()
+        return render(request,'ultimatix/employee/viewprojectmembers.html',{'p':p,'res':res_list,'user':user,'role':r})
+    else:
+        raise Http404
+
+
+def empmyproject(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    ob=Project_members.objects.filter(eid_id=logged_in, pmstatus='Y')
+    if ob:
+        pid=Project_members.objects.get(eid_id=logged_in, pmstatus='Y').pid_id
+        prole=Project_members.objects.get(eid_id=logged_in, pmstatus='Y')
+        proledesc=Project_roles.objects.get(r_id=Project_members.objects.get(eid_id=logged_in, pmstatus='Y').rid_id).r_desc
+        cursor = connection.cursor()
+        p = Project.objects.get(pid=pid)
+        sql = """
+        SELECT pm.pmid,e.e_id, (e.e_fname||" "||ifnull(e.e_lname,"")), pr.r_desc, pm.pmsdate, pm.pmedate, pm.pmstatus
+        FROM ultimatix_project p
+        LEFT OUTER JOIN ultimatix_project_members pm ON pm.pid_id = p.pid
+        LEFT OUTER JOIN ultimatix_project_roles pr ON pr.r_id = pm.rid_id
+        LEFT OUTER JOIN ultimatix_employee e ON e.e_id = pm.eid_id
+        WHERE p.pid=%s order by pr.r_id DESC 
+        """
+        cursor.execute(sql, [pid])
+        res = cursor.fetchall()
+        res_list = []
+        for r in res:
+            t = {}
+            t['pmid'] = str(r[0])
+            t['eid'] = str(r[1])
+            t['name'] = str(r[2])
+            t['prdesc'] = str(r[3])
+            t['pmsdate'] = str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
+            if not str(r[5]):
+                t['pmedate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
+            else:
+                t['pmedate'] = str(r[5])
+            t['pmstatus'] = str(r[6])
+            res_list.append(t)
+        sql='''
+        SELECT p.pid,p.pdesc,e.e_id, (e.e_fname||" "||ifnull(e.e_lname,"")), pr.r_desc, pm.pmsdate, pm.pmedate, pm.pmstatus
+        FROM ultimatix_project p
+        LEFT OUTER JOIN ultimatix_project_members pm ON pm.pid_id = p.pid
+        LEFT OUTER JOIN ultimatix_project_roles pr ON pr.r_id = pm.rid_id
+        LEFT OUTER JOIN ultimatix_employee e ON e.e_id = pm.eid_id
+        WHERE e.e_id=%s and pm.pmstatus='N' order by pm.pmsdate DESC         
+        '''
+        cursor.execute(sql, [logged_in])
+        res2 = cursor.fetchall()
+        res_list2 = []
+        for r in res2:
+            t = {}
+            t['pid'] = str(r[0])
+            t['pdesc'] = str(r[1])
+            t['ename'] = str(r[3])
+            t['rdesc'] = str(r[4])
+            t['pmsdate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
+            t['pmedate'] = str((r[6]).strftime('%Y-%m-%d  %H:%M:%S'))
+            res_list2.append(t)
+        print('role : '+str(role))
+        cursor.close()
+        return render(request, 'ultimatix/employee/myproject.html',
+                      {'p':p,'res':res_list,'res2':res_list2,'user': user, 'role': role,'prole':prole,'proledesc':proledesc})
+    else:
+        return render(request, 'ultimatix/employee/myproject.html',
+                      {'user': user, 'role': role,'msg':' You are not allocated !'})
+
+def empdetails(request):
+    cursor = connection.cursor()
+    sql = '''
+    select ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender, ue.e_doj, ud.d_desc, ues.es_ctc, 
+    ue.e_status,ue.e_img,ue.e_email,ue.e_qfn
+    from ultimatix_employee ue
+    left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
+    left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+    left outer join ultimatix_employee_sal ues on ues.es_eid_id = ue.e_id
+    where ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and ues.es_status = 'Y' order by (ue.e_fname ||' ' ||ue.e_lname) asc
+    '''
+    cursor.execute(sql)
+    res = cursor.fetchall()
+    res_list = []
+    for r in res:
+        t = {}
+        t['eid'] = r[0]
+        t['name'] = r[1]
+        t['gender']=r[2]
+        t['doj']=r[3]
+        t['desig']=r[4]
+        t['ctc']=r[5]
+        t['status']=r[6]
+        t['img']=r[7]
+        t['email']=r[8]
+        t['qfn']=r[9]
+        res_list.append(t)
+    cursor.close()
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    print('res_list : '+str(res_list))
+    return render(request,'ultimatix/employee/viewemp.html',{'eobj':res_list,'role':role,'user':user})
+
+def empleave(request):
+    logged_in = request.session['eid']
+    role=findrole(logged_in)
+    if request.method=='POST':
+        eid = request.session['eid']
+        sdate = datetime.strptime(request.POST.get('sdate'), '%m/%d/%Y').strftime('%Y-%m-%d')
+        edate = datetime.strptime(request.POST.get('edate'), '%m/%d/%Y').strftime('%Y-%m-%d')
+        nof = float(request.POST.get('nof'))
+        ltype = request.POST.get('leave_select')
+        desc = request.POST.get('rsn')
+        status = 'P'
+        reqdate = str(datetime.now().strftime('%Y-%m-%d'))
+        queueid = findqueueid(eid)
+
+        Leave.objects.create(eid=Employee.objects.get(e_id=eid), sdate=sdate, edate=edate, nof=nof,
+                             ltype=ltype, desc=desc, status=status, reqdate=reqdate, queueid=queueid)
+        if ltype == '0':
+            rem = (Employee.objects.get(e_id=eid).e_cl) - nof
+            Employee.objects.filter(e_id=eid).update(e_cl=rem)
+        elif ltype == '1':
+            rem = (Employee.objects.get(e_id=eid).e_sl) - nof
+            Employee.objects.filter(e_id=eid).update(e_sl=rem)
+        elif ltype == '2':
+            rem = (Employee.objects.get(e_id=eid).e_el) - nof
+            Employee.objects.filter(e_id=eid).update(e_el=rem)
+        elif ltype == '3':
+            rem = (Employee.objects.get(e_id=eid).e_fl) - nof
+            Employee.objects.filter(e_id=eid).update(e_fl=rem)
+
+        lobj = Leave.objects.filter(eid=logged_in).order_by('-lid')
+        user = Employee.objects.get(e_id=logged_in)
+        return render(request, 'ultimatix/employee/applyleave.html', {'user': user, 'lobj': lobj, 'role': role,'success':'Leave request submitted !'})
+    else:
+        lobj = Leave.objects.filter(eid=logged_in).order_by('-lid')
+        user = Employee.objects.get(e_id=logged_in)
+        return render(request, 'ultimatix/employee/applyleave.html', {'user': user, 'lobj': lobj,'role':role})
+
+
+def empleavereq(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        if request.POST.get('submit'):
+            lid = request.POST.get('submit')
+            rem = request.POST.get(request.POST.get('submit') + "_remarks")
+            Leave.objects.filter(lid=lid).update(status='A', updtby=logged_in, remarks=rem)
+            #print(lid)
+            lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
+            return render(request, 'ultimatix/employee/leaverequest.html', {'user': user, 'role': role, 'lreqobj': lreqobj,'success':' Data saved successfully !'})
+        elif request.POST.get('cancel'):
+            lid = request.POST.get('cancel')
+            rem = request.POST.get(request.POST.get('cancel') + "_remarks")
+            nof=float(Leave.objects.get(lid=lid).nof)
+            ltype=Leave.objects.get(lid=lid).ltype
+            eid=Leave.objects.get(lid=lid).eid_id
+            r=-1.0
+            if ltype == 0:
+                r = (Employee.objects.get(e_id=eid).e_cl) + nof
+                Employee.objects.filter(e_id=eid).update(e_cl=r)
+            elif ltype == 1:
+                r = (Employee.objects.get(e_id=eid).e_sl) + nof
+                Employee.objects.filter(e_id=eid).update(e_sl=r)
+            elif ltype == 2:
+                r = (Employee.objects.get(e_id=eid).e_el) + nof
+                Employee.objects.filter(e_id=eid).update(e_el=r)
+            elif ltype == 3:
+                r = (Employee.objects.get(e_id=eid).e_fl) + nof
+                Employee.objects.filter(e_id=eid).update(e_fl=r)
+            #print(str(lid)+" "+str(nof)+" "+str(ltype)+" "+str(r))
+            Leave.objects.filter(lid=lid).update(status='R', updtby=logged_in,remarks=rem)
+            lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
+            return render(request, 'ultimatix/employee/leaverequest.html', {'user': user, 'role': role, 'lreqobj': lreqobj,'success':' Data saved successfully !'})
+        elif request.POST.get('fwd'):
+            lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
+            lid=request.POST.get('fwd')
+            fwdto=str(request.POST.get(request.POST.get('fwd')+"_fwdto"))
+            if fwdto=="":
+                return render(request, 'ultimatix/employee/leaverequest.html',
+                              {'user': user, 'role': role, 'lreqobj': lreqobj,'error':' Please enter employee id'})
+            else:
+                ob=Employee.objects.filter(e_id=fwdto,e_status='Y')
+                if not ob:
+                    return render(request, 'ultimatix/employee/leaverequest.html',
+                                  {'user': user, 'role': role, 'lreqobj': lreqobj, 'error': ' Please enter a valid employee id'})
+                else:
+                    ownid=Leave.objects.get(lid=lid).eid_id
+                    if(str(fwdto)==str(ownid)):
+                        return render(request, 'ultimatix/employee/leaverequest.html',
+                                      {'user': user, 'role': role, 'lreqobj': lreqobj,'error': ' Invalid Employee !'})
+                    else:
+                        lid = request.POST.get('fwd')
+                        rem=request.POST.get(request.POST.get('fwd') + "_remarks")
+                        queueid=fwdto
+                        Leave.objects.filter(lid=lid).update(queueid=queueid,updtby=logged_in,
+                                                             remarks=rem)
+                        return render(request, 'ultimatix/employee/leaverequest.html',
+                                      {'user': user, 'role': role, 'lreqobj': lreqobj, 'success': ' Data saved successfully !'})
+    else:
+        lreqobj = Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
+        return render(request, 'ultimatix/employee/leaverequest.html', {'user': user,'role':role, 'lreqobj': lreqobj})
+
+
+def empcalendar(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        return HttpResponse('success')
+    else:
+        cal = calendar.Calendar()
+        calendar_list=[]
+        for day in cal.itermonthdays(2019, 9):
+            calendar_list.append(day)
+        holidays=[]
+        t={}
+        t['day']=5
+        t['desc']='Eid ul fitar'
+        holidays.append(t)
+        t={}
+        t['day']=22
+        t['desc']='Independance day'
+        holidays.append(t)
+        return render(request, 'ultimatix/employee/calendar.html', {'user': user, 'role': role,'calendar_list':calendar_list,'holidays':holidays})
+
+def emppayslip(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        adate=request.POST.get('sdate')
+        r=Wage.objects.filter(eid_id=logged_in,sdate__lte=adate,
+                              edate__gte=adate,status='Y')
+        cursor = connection.cursor()
+        if r:
+            sql = '''
+            select ue.e_id, (ue.e_fname ||' ' ||ifnull(ue.e_lname,'')) as Name, ud.d_desc, ues.es_ctc
+            from ultimatix_employee ue
+            left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
+            left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+            left outer join ultimatix_employee_sal ues on ues.es_eid_id = ue.e_id
+            where ued.ed_status = 'Y' and ues.es_status = 'Y' and ue.e_id = %s
+            '''
+            cursor.execute(sql,[logged_in])
+            res=cursor.fetchone()
+            t={}
+            t['eid']=res[0]
+            t['name']=res[1]
+            t['desig']=res[2]
+            t['ctc']=res[3]
+            sql='''
+            select bs,conv,hra,city,sundry,ptax,pf,esis,lop from ultimatix_wage where eid_id=%s and 
+            status='Y' and sdate<=%s and edate>=%s
+            '''
+            cursor.execute(sql, [logged_in,adate,adate])
+            res = cursor.fetchone()
+            t['bs']=res[0]
+            t['conv']=res[1]
+            t['hra']=res[2]
+            t['city']=res[3]
+            t['sundry']=res[4]
+            t['ptax']=res[5]
+            t['pf']=res[6]
+            t['esis']=res[7]
+            t['lop']=res[8]
+            t['earn']=float(res[0])+float(res[1])+float(res[2])+float(res[3])+float(res[4])
+            t['ded']=float(res[5])+float(res[6])+float(res[7])
+            t['fin']=round((float(res[0])+float(res[1])+float(res[2])+float(res[3])+float(res[4]))-float(res[8]),2)
+            cursor.close()
+            date=datetime.strptime(adate,'%Y-%m-%d')
+            mnyr = date.strftime('%B') + ", " + date.strftime('%Y')
+            t['mnyr']=mnyr
+            pdf = render_to_pdf('pdf/payslip.html', t)
+            return HttpResponse(pdf, content_type='application/pdf')
+        else:
+            return render(request, 'ultimatix/employee/payslip.html',
+                  {'user': user, 'role': role,'error':' Payslip is not yet generated !'})
+    else:
+        return render(request, 'ultimatix/employee/payslip.html',
+                  {'user': user, 'role': role})
+
+def emptsupdt(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        return HttpResponse('success')
+    else:
+        return render(request, 'ultimatix/employee/updttimesheet.html',{'user': user, 'role': role})

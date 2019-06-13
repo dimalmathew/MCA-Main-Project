@@ -27,8 +27,10 @@
                 <th style="color:black;">Name</th>
                 <th style="color:black;">Start Date</th>
                 <th style="color:black;">Expected</th>
+                <th style="color:black;">Budget</th>
+                <th style="color:black;">Complexity</th>
                 <th style="color:black;">Status</th>
-                <th style="color:black;">End Date</th>
+<!--                <th style="color:black;">End Date</th>-->
                 <th style="color:black;">Action</th>
             </tr>
         </thead>
@@ -39,14 +41,16 @@
                 <td style="color:black;">{{p.ptitle}}</td>
                 <td style="color:black;">{{p.psdate}}</td>
                 <td style="color:black;">{{p.pexpedate}}</td>
+                <td style="color:black;">{{p.pbudget}}</td>
+                <td style="color:black;">{{p.pcomplexity}}</td>
                 <td style="color:black;">{{p.pstatus}}</td>
-                <td style="color:black;">
+<!--                <td style="color:black;">
                     {% if p.pedate %}
                         {{p.pedate}}
                     {% else %}
                             -
                     {%endif%}
-                </td>
+                </td>-->
                 <td>
                     <a href="{%url 'ultimatix:updt_project' p.pid %}" class="btn btn-primary form-control">Update</a>
                 </td>

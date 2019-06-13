@@ -24,6 +24,14 @@ path('ultimatix/payslip/',views.generate_payslip,name="generate_payslip"),
 path('ultimatix/newsfeed/',views.news_feed,name='news_feed'),
 
 path('ultimatix/empview_projects',views.empview_projects,name="empview_projects"),
+path('ultimatix/empview_projects/<int:pid>',views.empproejctmembers_view,name="empproject_members"),
+path('ultimatix/empmyproject/',views.empmyproject,name="empmyproject"),
+path('ultimatix/empdetails/',views.empdetails,name='empdetails'),
+path('ultimatix/empleave/',views.empleave,name="empleave"),
+path('ultimatix/empleavereq/',views.empleavereq,name="empleavereq"),
+path('ultimatix/empcalendar/',views.empcalendar,name="empcalendar"),
+path('ultimatix/emppayslip/',views.emppayslip,name="emppayslip"),
+path('ultimatix/emptsupdt/',views.emptsupdt,name="emptsupdt"),
 
 path('',views.show_login,name="show_login"),
 
