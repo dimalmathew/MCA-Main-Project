@@ -20,7 +20,7 @@
 <!--<h1>{{eid}}</h1>-->
     <div class="bs-example">
         <div class="row">
-        <form action="#" method="post">
+        <form action="{% url 'ultimatix:project_members' p.pid %}" method="post">
                 {% csrf_token%}
             <div class="panel-group">
                 <div class="panel panel-primary">
@@ -99,7 +99,10 @@
 <!--                <input type="hidden" value="{{r.pmid}}" name="pmid">
                 <input type="hidden" value="{{forloop.counter}}" name="sl">
                 <input type="hidden" value="" name="{{pmid}}_{{forloop.counter}}">-->
-                <td style="color:black;">{{r.eid}}</td>
+                <td style="color:black;">
+                    {{r.eid}}
+                <input type="hidden" value="{{r.pmid}}" name="{{r.pmid}}_pmid">
+                </td>
                 <td style="color:black;">{{r.name}}</td>
                 <td style="color:black;">{{r.prdesc}}</td>
                 <td style="color:black;">{{r.pmsdate}}</td>
@@ -113,14 +116,14 @@
                 <td style="color:black;">{{r.pmstatus}}</td>
                 <td>
                     {% if r.prdesc == 'Project Owner' %}
-                    <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
+                    <button type="submit" class="btn btn-primary form-control test inactiveLink" name="submit" value="{{r.pmid}}" disabled>Deallocate</button>
                     <!--<button type="submit" class="btn btn-primary form-control test">Update</button>-->
                     {%elif r.prdesc == 'Management'%}
-                    <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
+                    <button type="submit" class="btn btn-primary form-control test inactiveLink" name="submit" value="{{r.pmid}}">Deallocate</button>
                     {%elif r.pmstatus ==  'N' %}
-                    <button type="submit" class="btn btn-primary form-control test inactiveLink" disabled>Update</button>
+                    <button type="submit" class="btn btn-primary form-control test inactiveLink" name="submit" value="{{r.pmid}}" disabled>Deallocate</button>
                     {%else%}
-                    <button type="submit" class="btn btn-primary form-control test">Update</button>
+                    <button type="submit" class="btn btn-primary form-control test" name="submit" value="{{r.pmid}}" >Deallocate</button>
                     {%endif%}
                 </td>
             </tr>

@@ -196,3 +196,10 @@ class News(models.Model):
     def __str__(self):
         return str(self.nid)
 
+class Holidays(models.Model):
+    hid=models.AutoField(primary_key=True)
+    hdate=models.DateField(null=True,blank=True)
+    hdesc=models.CharField(max_length=150,null=True,blank=True)
+
+    def __str__(self):
+        return str(self.hid)

@@ -10,35 +10,83 @@
     margin-top:1px;
     margin-left:-3px;
     text-align:center;
-    padding-top:1%;
+    padding-top:1.5%;
     font-weight: bold;
     }
-
+    .c1{
+        width:40px;height:15px;
+    }
 </style>
-<h2 class="w3ls_head">calendar</h2>
-<div class="grid_3 grid_4 w3layouts">
+<h2 class="w3ls_head" style="margin-bottom: 1em">calendar</h2>
+<div class="grid_3 grid_4 w3layouts position-center">
     <div class="bs-example">
-        <!--<table id="example" class="table table-striped table-bordered" style="width:100%">
-        <thead>
-            <tr>
-                <th style="color:black;">Monday</th>
-                <th style="color:black;">Tuesday</th>
-                <th style="color:black;">Wednesday</th>
-                <th style="color:black;">Thursday</th>
-                <th style="color:black;">Friday</th>
-                <th style="color:black;">Saturday</th>
-                <th style="color:black;">Sunday</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-            {% for d in calendar_list %}
-                    <td>{{d}}</td>
-            {% endfor %}
-            </tr>
-        </tbody>
-        </table>-->
-        <div class="row">
+        <form action="{% url 'ultimatix:empcalendar'%}" method="post">
+            {%csrf_token%}
+        <div class="row" style="">
+            <div class="col-md-3">
+                <!--<label for="month_select">Month</label>-->
+                <select  title="Choose Month" class="form-control" style="font-weight:bold;" id="month_select" name="month_select" required>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <!--<label for="year_select">Year</label>-->
+                <select  title="Choose Month" class="form-control" style="font-weight:bold;" id="year_select" name="year_select"required>
+<!--                    <option>2000</option>
+                    <option>2001</option>
+                    <option>2002</option>
+                    <option>2003</option>
+                    <option>2004</option>
+                    <option>2005</option>
+                    <option>2006</option>
+                    <option>2007</option>
+                    <option>2008</option>
+                    <option>2009</option>
+                    <option>2010</option>
+                    <option>2011</option>
+                    <option>2012</option>
+                    <option>2013</option>
+                    <option>2014</option>-->
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+<!--                    <option>2026</option>
+                    <option>2027</option>
+                    <option>2028</option>
+                    <option>2029</option>
+                    <option>2030</option>-->
+                </select>
+            </div>
+<!--            <div class="col-md-3">
+                <select  title="Choose Employee Id" class="form-control" id="emp_select" name="emp_select"required>
+                    <option></option>
+                </select>
+            </div>-->
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <button class="btn btn-primary form-control" name="submit" id="submit" value="submit">View</button>
+            </div>
+        </div>
+        <div class="row" style="margin-top:10px;margin-left:4px;">
             <div class="c2" >Mon</div>
             <div class="c2" >Tue</div>
             <div class="c2" >Wed</div>
@@ -48,21 +96,36 @@
             <div class="c2" >Sun</div>
             <br>
             {% for obj in calendar_list %}
-                {% if obj == 0 %}
-                <div class="c2"><label value="{{obj}}"></label></div>
+                {% if obj.date == 0 %}
+                <div class="c2"><label value="{{obj.date}}"></label></div>
                 {%else%}
-                    {% if forloop.counter|add:"1"|divisibleby:"7" or forloop.counter|divisibleby:"7" %}
-                            <div class="c2" style="background:#f05050;">{{obj}}</div>
-                    {%else%}
-                        <div class="c2">{{obj}}</div>
+                    {% if obj.value == 0 %}
+                    <div class="c2" style="background:red;" title="">{{obj.date}}</div>
+                    {% elif obj.value == 1 %}
+                    <div class="c2" style="background:#ad2dad;" title="Fullday Leave">{{obj.date}}</div>
+                    {% elif obj.value == 2 %}
+                    <div class="c2" style="background:#fb06fb;" title="Halfday Leave">{{obj.date}}</div>
+                    {% elif obj.value == 3 %}
+                            {% if forloop.counter|add:"1"|divisibleby:"7" or forloop.counter|divisibleby:"7" %}
+                            <div class="c2" style="background:#f05050;">{{obj.date}}</div>
+                            {%else%}
+                            <div class="c2">{{obj.date}}</div>
+                            {%endif%}
                     {%endif%}
                 {%endif%}
-                {% if forloop.counter|divisibleby:"7" %}
-                <br style="margin:0;">
-                {%endif%}
 
+
+
+
+                {% if forloop.counter|divisibleby:"7" %}
+                <br>
+                {%endif%}
             {%endfor%}
-        </div>
+        </div><br>
+        {% for o in hobj %}
+        <label style="font-size:12px;">{{o.hdate}} : {{o.hdesc}}</label><br>
+        {%endfor%}
+        </form>
     </div>
 </div>
 <script>
@@ -70,6 +133,25 @@ $(document).ready(function(){
 	$('#timesheet').addClass("active");
 	$('#timesheet_view').addClass("active");
 
+    month="{{month}}";
+    var x= document.getElementById("month_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==month){
+        res=i;
+        }
+    }
+    $('#month_select')[0].selectedIndex=res;
+
+    year="{{year}}";
+    var x= document.getElementById("year_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==year){
+        res=i;
+        }
+    }
+    $('#year_select')[0].selectedIndex=res;
 });
 </script>
 {%endblock%}

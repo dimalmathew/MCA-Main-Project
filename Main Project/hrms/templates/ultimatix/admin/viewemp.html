@@ -38,7 +38,9 @@
             {% for e in eobj %}
             <tr>
                 <td style="color:black;"><a href="{% url 'ultimatix:updt_emp' e.eid %}">{{e.eid}}</a></td>
-                <td style="color:black;">{{e.name}} </td>
+                <td style="color:black;">
+                    <img src="/media/{{e.img}}" width="42;height:42px;" style="border-radius: 50%;border-style:solid;border-width:1px;border-color: black"/> {{e.name}}
+                </td>
                 <td style="color:black;">{{e.gender}}</td>
                 <td style="color:black;">{{e.doj}}</td>
 

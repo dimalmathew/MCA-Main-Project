@@ -15,6 +15,7 @@ import calendar
 #import datetime
 from ultimatix import config
 import numpy as np
+from django.db.models import Q
 # Create your views here.
 def dictfetchall(cursor):
     """Return all rows from a cursor as a dict"""
@@ -418,7 +419,8 @@ def viewemp_view(request):
     #eobj=Employee.objects.all().exclude(e_id='1022890')
     cursor = connection.cursor()
     sql = '''
-    select ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender, ue.e_doj, ud.d_desc, ues.es_ctc, ue.e_status
+    select ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender,
+    ue.e_doj, ud.d_desc, ues.es_ctc, ue.e_status,ue.e_img
     from ultimatix_employee ue
     left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
     left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
@@ -437,6 +439,7 @@ def viewemp_view(request):
         t['desig']=r[4]
         t['ctc']=r[5]
         t['status']=r[6]
+        t['img']=r[7]
         res_list.append(t)
     cursor.close()
     logged_in = request.session['eid']
@@ -445,13 +448,16 @@ def viewemp_view(request):
 
 
 def updtemp_view(request,pk=0):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
     if pk!=0:
         eobj=Employee.objects.get(e_id=pk)
         #d1=str(eobj.e_dob)
         dobj = Designation.objects.all().exclude(d_role=0)
         empdesobj=Employee_desig.objects.get(ed_eid=pk,ed_status='Y').ed_did
         empsalobj=Employee_sal.objects.get(es_eid=pk,es_status='Y')
-        return render(request, 'ultimatix/admin/updt_emp.html', {'eobj': eobj,
+        return render(request, 'ultimatix/admin/updt_emp.html', {'user':user,
+                                                                 'eobj': eobj,
                                                                  'dobj':dobj,
                                                                  'empdesobj':empdesobj,
                                                                  'empsalobj':empsalobj})
@@ -804,8 +810,46 @@ def default_allocate_view():
 def proejctmembers_view(request,pid):
     if pid:
         if request.method=='POST':
-            return HttpResponse('success')
+            #pmid=request.POST.get('pmid')
+            id=request.POST.get('submit')
+            pmid=request.POST.get(request.POST.get('submit')+"_pmid")
+            #pmedate = str(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'))
+            #edate=(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'))
 
+            Project_members.objects.filter(pmid=pmid).update(pmedate=pmedate, pmstatus='N')
+
+            p = Project.objects.get(pid=pid)
+            test = Project_members.objects.filter(pid=pid)
+            cursor = connection.cursor()
+            sql = """
+            SELECT pm.pmid,e.e_id, (e.e_fname||" "||ifnull(e.e_lname,"")), pr.r_desc, pm.pmsdate, pm.pmedate, pm.pmstatus
+            FROM ultimatix_project p
+            LEFT OUTER JOIN ultimatix_project_members pm ON pm.pid_id = p.pid
+            LEFT OUTER JOIN ultimatix_project_roles pr ON pr.r_id = pm.rid_id
+            LEFT OUTER JOIN ultimatix_employee e ON e.e_id = pm.eid_id
+            WHERE p.pid=%s order by pr.r_id DESC 
+            """
+            cursor.execute(sql, [pid])
+            res = cursor.fetchall()
+            res_list = []
+            for r in res:
+                t = {}
+                t['pmid'] = str(r[0])
+                t['eid'] = str(r[1])
+                t['name'] = str(r[2])
+                t['prdesc'] = str(r[3])
+                t['pmsdate'] = str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
+                if not str(r[5]):
+                    t['pmedate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
+                else:
+                    t['pmedate'] = str(r[5])
+                t['pmstatus'] = str(r[6])
+                res_list.append(t)
+            logged_in = request.session['eid']
+            user = Employee.objects.get(e_id=logged_in)
+            return render(request, 'ultimatix/admin/updtprojectmembers.html', {'p': p, 'res': res_list, 'user': user})
+
+            #return HttpResponse('success')
         else:
             p=Project.objects.get(pid=pid)
             test = Project_members.objects.filter(pid=pid)
@@ -836,8 +880,6 @@ def proejctmembers_view(request,pid):
                     t['pmedate'] = str(r[5])
                 t['pmstatus']=str(r[6])
                 res_list.append(t)
-            #return HttpResponse(str(datetime.datetime.today().strftime('%Y-%m-%d')))
-            #return HttpResponse(str(res_list))
             logged_in = request.session['eid']
             user = Employee.objects.get(e_id=logged_in)
             return render(request,'ultimatix/admin/updtprojectmembers.html',{'p':p,'res':res_list,'user':user})
@@ -1173,8 +1215,57 @@ def generate_payslip(request):
 
 
 def calendar_view(request):
-    user=Employee.objects.get(e_id=config.eid)
-    return render(request,'ultimatix/calendar.html',{'user':user})
+    logged_in = request.session['eid']
+    user=Employee.objects.get(e_id=logged_in)
+    if request.method=='POST':
+        if request.POST.get('submit'):
+            month=(request.POST.get('month_select'))
+            m=month
+            year =(request.POST.get('year_select'))
+            eid=request.POST.get('emp_select')
+            ed = str(calendar.monthrange(int(year), int(month))[1])
+            if len(month) == 1:
+                month = '0' + month
+            sdate = year + "-" + month + "-01"
+            edate = year + "-" + month + "-" + ed
+
+            cal = calendar.Calendar()
+            hobj = Holidays.objects.filter(hdate__gte=sdate, hdate__lte=edate)
+            holidays = []
+            for o in hobj:
+                holidays.append(o.hdate.day)
+            tobj = Timesheet.objects.filter(eid=eid, tdate__gte=sdate, tdate__lte=edate)
+            absent = []
+            halfday = []
+            for o in tobj:
+                if o.tstate == 'A':
+                    absent.append(o.tdate.day)
+                elif o.tstate == 'H':
+                    halfday.append(o.tdate.day)
+            calendar_list = []
+            for day in cal.itermonthdays(int(year), int(month)):
+                t = {}
+                t['date'] = day
+                if day in holidays:
+                    t['value'] = 0
+                elif day in absent:
+                    t['value'] = 1
+                elif day in halfday:
+                    t['value'] = 2
+                else:
+                    t['value'] = 3
+                calendar_list.append(t)
+            #emplist = Employee.objects.filter(~Q(e_id='1022890'))
+            emplist = Employee.objects.all()
+            return render(request, 'ultimatix/calendar.html',
+                          {'user': user, 'calendar_list': calendar_list, 'emplist': emplist,'hobj': hobj,'month':m,'year':year,'eid':eid})
+            #return HttpResponse(m+year+eid)
+    else:
+        calendar_list=[]
+        #emplist=Employee.objects.filter(~Q(e_id='1022890'))
+        emplist=Employee.objects.all()
+        return render(request,'ultimatix/calendar.html',{'user':user,'calendar_lidt':calendar_list,'emplist':emplist})
+
 '''def deallocate_view(request,pmid):
     if pmid:
         return render(request,'ultimatix/admin/deallocate.html',{'pmid':pmid})'''
@@ -1330,12 +1421,13 @@ def empmyproject(request):
 def empdetails(request):
     cursor = connection.cursor()
     sql = '''
-    select ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender, ue.e_doj, ud.d_desc, ues.es_ctc, 
-    ue.e_status,ue.e_img,ue.e_email,ue.e_qfn
+    select distinct ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender, ue.e_doj, ud.d_desc, ues.es_ctc, 
+    ue.e_status,ue.e_img,ue.e_email,ue.e_qfn,upm.pid_id
     from ultimatix_employee ue
     left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
     left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
     left outer join ultimatix_employee_sal ues on ues.es_eid_id = ue.e_id
+    left outer join ultimatix_project_members upm on upm.eid_id = ues.es_eid_id
     where ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and ues.es_status = 'Y' order by (ue.e_fname ||' ' ||ue.e_lname) asc
     '''
     cursor.execute(sql)
@@ -1353,6 +1445,7 @@ def empdetails(request):
         t['img']=r[7]
         t['email']=r[8]
         t['qfn']=r[9]
+        t['pid']=r[10]
         res_list.append(t)
     cursor.close()
     logged_in = request.session['eid']
@@ -1469,22 +1562,84 @@ def empcalendar(request):
     user = Employee.objects.get(e_id=logged_in)
     role=findrole(logged_in)
     if request.method=='POST':
-        return HttpResponse('success')
+        if request.POST.get('submit'):
+            month=(request.POST.get('month_select'))
+            m=month
+            year =(request.POST.get('year_select'))
+            ed = str(calendar.monthrange(int(year), int(month))[1])
+            if len(month) == 1:
+                month = '0' + month
+            sdate = year + "-" + month + "-01"
+            edate = year + "-" + month + "-" + ed
+
+            cal = calendar.Calendar()
+            hobj = Holidays.objects.filter(hdate__gte=sdate, hdate__lte=edate)
+            holidays = []
+            for o in hobj:
+                holidays.append(o.hdate.day)
+            tobj = Timesheet.objects.filter(eid=logged_in, tdate__gte=sdate, tdate__lte=edate)
+            absent = []
+            halfday = []
+            for o in tobj:
+                if o.tstate == 'A':
+                    absent.append(o.tdate.day)
+                elif o.tstate == 'H':
+                    halfday.append(o.tdate.day)
+            calendar_list = []
+            for day in cal.itermonthdays(int(year), int(month)):
+                t = {}
+                t['date'] = day
+                if day in holidays:
+                    t['value'] = 0
+                elif day in absent:
+                    t['value'] = 1
+                elif day in halfday:
+                    t['value'] = 2
+                else:
+                    t['value'] = 3
+                calendar_list.append(t)
+            return render(request, 'ultimatix/employee/calendar.html',
+                          {'user': user, 'role': role, 'calendar_list': calendar_list, 'hobj': hobj,'month':m,'year':year})
+            #return HttpResponse(month+" "+year)
     else:
+        date = datetime.now()
+        month = str(date.month)
+        m=month
+        year = str(date.year)
+        ed = str(calendar.monthrange(int(year), int(month))[1])
+        if len(month) == 1:
+            month = '0' + month
+        sdate = year + "-" + month + "-01"
+        edate = year + "-" + month + "-" + ed
+
         cal = calendar.Calendar()
-        calendar_list=[]
-        for day in cal.itermonthdays(2019, 9):
-            calendar_list.append(day)
+        hobj=Holidays.objects.filter(hdate__gte=sdate, hdate__lte=edate)
         holidays=[]
-        t={}
-        t['day']=5
-        t['desc']='Eid ul fitar'
-        holidays.append(t)
-        t={}
-        t['day']=22
-        t['desc']='Independance day'
-        holidays.append(t)
-        return render(request, 'ultimatix/employee/calendar.html', {'user': user, 'role': role,'calendar_list':calendar_list,'holidays':holidays})
+        for o in hobj:
+            holidays.append(o.hdate.day)
+        tobj= Timesheet.objects.filter(eid=logged_in,tdate__gte=sdate, tdate__lte=edate)
+        absent=[]
+        halfday=[]
+        for o in tobj:
+            if o.tstate == 'A':
+                absent.append(o.tdate.day)
+            elif o.tstate == 'H':
+                halfday.append(o.tdate.day)
+        calendar_list=[]
+        for day in cal.itermonthdays(int(year), int(month)):
+            t={}
+            t['date']=day
+            if day in holidays:
+                t['value']=0
+            elif day in absent:
+                t['value']=1
+            elif day in halfday:
+                t['value']=2
+            else:
+                t['value']=3
+            calendar_list.append(t)
+        #print(str(calendar_list))
+        return render(request, 'ultimatix/employee/calendar.html', {'user': user, 'role': role,'calendar_list':calendar_list,'hobj':hobj,'month':m,'year':year})
 
 def emppayslip(request):
     logged_in = request.session['eid']
@@ -1547,6 +1702,151 @@ def emptsupdt(request):
     user = Employee.objects.get(e_id=logged_in)
     role=findrole(logged_in)
     if request.method=='POST':
-        return HttpResponse('success')
+        eid=request.POST.get('emp_select')
+        tdate=request.POST.get('tdate')
+        tstate=request.POST.get('attn_select')
+        temp = Timesheet.objects.filter(eid=eid, tdate=tdate)
+        if not temp:
+            ob = Timesheet.objects.create(eid=Employee.objects.get(e_id=eid),tdate=tdate,tstate=tstate)
+            ob.save()
+        else:
+            Timesheet.objects.filter(eid=Employee.objects.get(e_id=eid),tdate=tdate).update(tstate=tstate)
+
+        pm = Project_members.objects.filter(eid_id=logged_in, pmstatus='Y')
+        emp_list = []
+        if pm:
+            pid = Project_members.objects.get(eid_id=logged_in, pmstatus='Y').pid_id
+            cursor = connection.cursor()
+            sql = '''
+            select upm.eid_id
+            from ultimatix_project_members upm 
+            where upm.pid_id=%s and upm.pmstatus='Y' and upm.eid_id not in ('1022890',%s) order by upm.eid_id            
+            '''
+            cursor.execute(sql, [pid, logged_in])
+            res = cursor.fetchall()
+            for r in res:
+                emp_list.append(r[0])
+        return render(request, 'ultimatix/employee/updttimesheet.html',
+                      {'user': user, 'role': role, 'emp_list': emp_list,'success':' Successfully updated timesheet data, Please ask employee to verify !'})
+        #return HttpResponse('success')
     else:
-        return render(request, 'ultimatix/employee/updttimesheet.html',{'user': user, 'role': role})
+        pm=Project_members.objects.filter(eid_id=logged_in, pmstatus='Y')
+        emp_list=[]
+        if pm:
+            pid = Project_members.objects.get(eid_id=logged_in, pmstatus='Y').pid_id
+            cursor=connection.cursor()
+            sql='''
+            select upm.eid_id
+            from ultimatix_project_members upm 
+            where upm.pid_id=%s and upm.pmstatus='Y' and upm.eid_id not in ('1022890',%s) order by upm.eid_id            
+            '''
+            cursor.execute(sql,[pid,logged_in])
+            res=cursor.fetchall()
+            for r in res:
+                emp_list.append(r[0])
+            #emp_list=Project_members.objects.filter(pid_id=pid,pmstatus='Y')
+        return render(request, 'ultimatix/employee/updttimesheet.html',{'user': user, 'role': role,'emp_list':emp_list})
+
+
+def updttmsheet(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    #role=findrole(logged_in)
+    if request.method=='POST':
+        eid=request.POST.get('emp_select')
+        tdate=request.POST.get('tdate')
+        tstate=request.POST.get('attn_select')
+        temp = Timesheet.objects.filter(eid=eid, tdate=tdate)
+        if not temp:
+            ob = Timesheet.objects.create(eid=Employee.objects.get(e_id=eid),tdate=tdate,tstate=tstate)
+            ob.save()
+        else:
+            Timesheet.objects.filter(eid=Employee.objects.get(e_id=eid),tdate=tdate).update(tstate=tstate)
+        emp_list = Employee.objects.filter(~Q(e_id='1022890'))
+        return render(request, 'ultimatix/admin/updttimesheet.html',
+                      {'user': user,'emp_list': emp_list,'success':' Successfully updated timesheet data'})
+        #return HttpResponse('success')
+    else:
+        emp_list=Employee.objects.filter(~Q(e_id='1022890'))
+        return render(request, 'ultimatix/admin/updttimesheet.html',
+                      {'user': user,'emp_list': emp_list})
+
+def empdtlupdt(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.is_ajax() and request.GET:
+        id = request.GET.get('id')
+        cursor = connection.cursor()
+        sql = """
+        select e_id,e_fname,e_lname,e_sname,e_dob,e_bgroup,e_mstatus,e_nationality,e_qfn,e_disb,e_gender
+        from ultimatix_employee
+        where e_id=%s
+        """
+        cursor.execute(sql, [id])
+        res = cursor.fetchall()
+        res_list = []
+        for r in res:
+            t={}
+            t['eid']=r[0]
+            t['fname']=r[1]
+            t['lname'] = r[2]
+            t['sname'] = r[3]
+            t['dob'] = str(r[4])
+            t['bgroup'] = r[5]
+            t['mstatus'] = r[6]
+            t['nationality'] = r[7]
+            t['qfn'] = r[8]
+            t['disb'] = r[9]
+            t['gender'] = r[10]
+            res_list.append(t)
+        j=json.dumps(res_list)
+        cursor.close()
+        #print(res_list)
+        return JsonResponse(res_list, safe=False)
+    elif request.method=='POST':
+        eid = request.POST.get('emp_select')
+        lname = request.POST.get('lname')
+        sname = request.POST.get('surname')
+        bgroup = request.POST.get('bgroup')
+        mstatus = request.POST.get('mstatus')
+        nationality = request.POST.get('nationality')
+        qfn = request.POST.get('qualific')
+        disb = request.POST.get('chk_disb')
+        if not disb:
+            disb = 'N'
+        prdisb=Employee.objects.get(e_id=eid).e_disb
+        if prdisb =='Y':
+            disb='Y'
+
+        Employee.objects.filter(e_id=eid).update(e_lname=lname, e_sname=sname, e_bgroup=bgroup,
+                                                 e_mstatus=mstatus, e_disb=disb, e_qfn=qfn,e_nationality=nationality)
+
+        #return HttpResponse('success')
+        pm = Project_members.objects.filter(eid_id=logged_in, pmstatus='Y')
+        emp_list=[]
+        if pm:
+            pid = Project_members.objects.get(eid_id=logged_in, pmstatus='Y').pid_id
+            emp_list=findmyprojectmembers(pid,logged_in)
+        return render(request,'ultimatix/employee/updtemp.html',{'user':user,'role':role,'emp_list':emp_list,'success':' Successfully updated employee details !'})
+    else:
+        pm = Project_members.objects.filter(eid_id=logged_in, pmstatus='Y')
+        emp_list=[]
+        if pm:
+            pid = Project_members.objects.get(eid_id=logged_in, pmstatus='Y').pid_id
+            emp_list=findmyprojectmembers(pid,logged_in)
+        return render(request,'ultimatix/employee/updtemp.html',{'user':user,'role':role,'emp_list':emp_list})
+
+def findmyprojectmembers(pid,logged_in):
+    cursor = connection.cursor()
+    sql = '''
+    select upm.eid_id
+    from ultimatix_project_members upm 
+    where upm.pid_id=%s and upm.pmstatus='Y' and upm.eid_id not in ('1022890',%s) order by upm.eid_id            
+    '''
+    cursor.execute(sql, [pid, logged_in])
+    res = cursor.fetchall()
+    emp_list = []
+    for r in res:
+        emp_list.append(r[0])
+    return emp_list

@@ -74,3 +74,8 @@ class News_admin(admin.ModelAdmin):
     list_display = ['nid','head','desc','img']
 
 admin.site.register(News,News_admin)
+
+class Holidays_admin(admin.ModelAdmin):
+    list_display = ['hid','hdate','hdesc']
+
+admin.site.register(Holidays,Holidays_admin)

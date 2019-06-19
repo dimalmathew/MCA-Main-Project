@@ -29,7 +29,7 @@
                 <th style="color:black;">Gender</th>
                 <th style="color:black;">Designation</th>
                 <th style="color:black;">E-mail</th>
-                <th style="color:black;">Qualification</th>
+                <th style="color:black;">Allocated Project</th>
             </tr>
         </thead>
         <tbody>
@@ -42,7 +42,11 @@
                 <td style="color:black;">{{e.gender}}</td>
                 <td style="color:black;">{{e.desig}}</td>
                 <td style="color:black;">{{e.email}}</td>
-                <td style="color:black;">{{e.qfn}}</td>
+                {% if e.pid == None %}
+                <td style="color:black;">NA</td>
+                {%else%}
+                <td style="color:black;">{{e.pid}}</td>
+                {%endif%}
             </tr>
             {%endfor%}
 

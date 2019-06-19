@@ -168,7 +168,11 @@
                                                     <div class="col-md-2"></div>
                                                     <div class="col-md-8">
                                                         <label for="paddr3">Address Line 3</label>
+                                                        {% if e_paddr3 %}
                                                         <input type="text" class="form-control" name="paddr3" id="paddr3" value="{{eobj.e_paddr3}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="paddr3" id="paddr3" value="">
+                                                        {%endif%}
                                                     </div>
                                                     <div class="col-md-2"></div>
                                                 </div>
@@ -195,7 +199,11 @@
                                                     <div class="col-md-2"></div>
                                                     <div class="col-md-8">
                                                         <label for="caddr1">Address Line 1</label>
+                                                        {%if e_caddr1 %}
                                                         <input type="text" class="form-control" name="caddr1" id="caddr1" value="{{eobj.e_caddr1}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="caddr1" id="caddr1" value="">
+                                                        {%endif%}
                                                     </div>
                                                     <div class="col-md-2"></div>
                                                 </div>
@@ -203,7 +211,11 @@
                                                     <div class="col-md-2"></div>
                                                     <div class="col-md-8">
                                                         <label for="caddr2">Address Line 2</label>
+                                                        {% if e_caddr2%}
                                                         <input type="text" class="form-control" name="caddr2" id="caddr2" value="{{eobj.e_caddr2}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="caddr2" id="caddr2" value="">
+                                                        {%endif%}
                                                     </div>
                                                     <div class="col-md-2"></div>
                                                 </div>
@@ -211,7 +223,11 @@
                                                     <div class="col-md-2"></div>
                                                     <div class="col-md-8">
                                                         <label for="caddr3">Address Line 3</label>
+                                                        {%if e_caddr3%}
                                                         <input type="text" class="form-control" name="caddr3" id="caddr3" value="{{eobj.e_caddr3}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="caddr3" id="caddr3" value="">
+                                                        {%endif%}
                                                     </div>
                                                     <div class="col-md-2"></div>
                                                 </div>

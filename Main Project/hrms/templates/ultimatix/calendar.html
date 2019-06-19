@@ -2,237 +2,145 @@
 
 {%block body %}
 <style>
-    c1{
-    color:black;
+    .c2{
+    width:90px;height:55px;
+    border-style:solid;border-width:1px;
+    background:none;
+    display: inline-block;
+    margin-top:1px;
+    margin-left:-3px;
+    text-align:center;
+    padding-top:1.5%;
+    font-weight: bold;
+    }
+    .c1{
+        width:40px;height:15px;
     }
 </style>
-<h2 class="w3ls_head">calendar</h2>
-<div class="grid_3 grid_4 w3layouts">
-<h1>{{user.e_id}}</h1>
+<h2 class="w3ls_head" style="margin-bottom: 1em">calendar</h2>
+<div class="grid_3 grid_4 w3layouts position-center">
     <div class="bs-example">
-            <div class="row">
-                <div class="col-md-3"></div>
-                <div class="col-md-6">
-                    <div class="card">
-        <h3 class="card-header" id="monthAndYear"></h3>
-        <table class="table table-bordered table-responsive-sm" id="calendar">
-            <thead>
-            <tr>
-                <th>Sun</th>
-                <th>Mon</th>
-                <th>Tue</th>
-                <th>Wed</th>
-                <th>Thu</th>
-                <th>Fri</th>
-                <th>Sat</th>
-            </tr>
-            </thead>
-
-            <tbody id="calendar-body">
-
-            </tbody>
-        </table>
-
-        <!--<div class="row">-->
-            <button class="btn btn-primary col-sm-5" id="previous" onclick="previous()">Previous</button>
-            <div class="col-sm-2"></div>
-            <button class="btn btn-primary col-sm-5" id="next" onclick="next()">Next</button>
-        <!--</div>-->
-        <br/>
-        <form>
-            <div class="row">
-                <div class="col-md-4">
-                   <label class="" for="month">Jump To: </label>
-                </div>
-                <div class="col-md-4">
-                    <select class="form-control col-sm-4" name="month" id="month" onchange="jump()">
-                <option value=0>Jan</option>
-                <option value=1>Feb</option>
-                <option value=2>Mar</option>
-                <option value=3>Apr</option>
-                <option value=4>May</option>
-                <option value=5>Jun</option>
-                <option value=6>Jul</option>
-                <option value=7>Aug</option>
-                <option value=8>Sep</option>
-                <option value=9>Oct</option>
-                <option value=10>Nov</option>
-                <option value=11>Dec</option>
-            </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="year"></label>
-                <select class="form-control col-sm-4" name="year" id="year" onchange="jump()">
-            <option value=1990>1990</option>
-            <option value=1991>1991</option>
-            <option value=1992>1992</option>
-            <option value=1993>1993</option>
-            <option value=1994>1994</option>
-            <option value=1995>1995</option>
-            <option value=1996>1996</option>
-            <option value=1997>1997</option>
-            <option value=1998>1998</option>
-            <option value=1999>1999</option>
-            <option value=2000>2000</option>
-            <option value=2001>2001</option>
-            <option value=2002>2002</option>
-            <option value=2003>2003</option>
-            <option value=2004>2004</option>
-            <option value=2005>2005</option>
-            <option value=2006>2006</option>
-            <option value=2007>2007</option>
-            <option value=2008>2008</option>
-            <option value=2009>2009</option>
-            <option value=2010>2010</option>
-            <option value=2011>2011</option>
-            <option value=2012>2012</option>
-            <option value=2013>2013</option>
-            <option value=2014>2014</option>
-            <option value=2015>2015</option>
-            <option value=2016>2016</option>
-            <option value=2017>2017</option>
-            <option value=2018>2018</option>
-            <option value=2019>2019</option>
-            <option value=2020>2020</option>
-            <option value=2021>2021</option>
-            <option value=2022>2022</option>
-            <option value=2023>2023</option>
-            <option value=2024>2024</option>
-            <option value=2025>2025</option>
-            <option value=2026>2026</option>
-            <option value=2027>2027</option>
-            <option value=2028>2028</option>
-            <option value=2029>2029</option>
-            <option value=2030>2030</option>
-        </select>
-
-                </div>
+        <form action="{% url 'ultimatix:calendar_view'%}" method="post">
+            {%csrf_token%}
+        <div class="row" style="">
+            <div class="col-md-3">
+                <!--<label for="month_select">Month</label>-->
+                <select  title="Choose Month" class="form-control" style="font-weight:bold;" id="month_select" name="month_select" required>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
             </div>
-
-          </form>
-
-
-
-    </div>
-                </div>
-                <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <!--<label for="year_select">Year</label>-->
+                <select  title="Choose Month" class="form-control" style="font-weight:bold;" id="year_select" name="year_select"required>
+<!--                    <option>2000</option>
+                    <option>2001</option>
+                    <option>2002</option>
+                    <option>2003</option>
+                    <option>2004</option>
+                    <option>2005</option>
+                    <option>2006</option>
+                    <option>2007</option>
+                    <option>2008</option>
+                    <option>2009</option>
+                    <option>2010</option>
+                    <option>2011</option>
+                    <option>2012</option>
+                    <option>2013</option>
+                    <option>2014</option>-->
+                    <option value="2015">2015</option>
+                    <option value="2016">2016</option>
+                    <option value="2017">2017</option>
+                    <option value="2018">2018</option>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+<!--                    <option>2026</option>
+                    <option>2027</option>
+                    <option>2028</option>
+                    <option>2029</option>
+                    <option>2030</option>-->
+                </select>
             </div>
+            <div class="col-md-3">
+                <select  title="Choose Employee Id" class="form-control" style="font-weight:bold" id="emp_select" name="emp_select"required>
+                    {% for e in emplist %}
+                    <option>{{e.e_id}}</option>
+                    {%endfor%}
+                </select>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <button class="btn btn-primary form-control" name="submit" id="submit" value="submit">View</button>
+            </div>
+        </div>
+        {% if calendar_list %}
+        <div class="row" style="margin-top:10px;margin-left:4px;">
+            <div class="c2" >Mon</div>
+            <div class="c2" >Tue</div>
+            <div class="c2" >Wed</div>
+            <div class="c2" >Thu</div>
+            <div class="c2" >Fri</div>
+            <div class="c2" >Sat</div>
+            <div class="c2" >Sun</div>
+            <br>
+            {% for obj in calendar_list %}
+                {% if obj.date == 0 %}
+                <div class="c2"><label value="{{obj.date}}"></label></div>
+                {%else%}
+                    {% if obj.value == 0 %}
+                    <div class="c2" style="background:red;" title="">{{obj.date}}</div>
+                    {% elif obj.value == 1 %}
+                    <div class="c2" style="background:#ad2dad;" title="Fullday Leave">{{obj.date}}</div>
+                    {% elif obj.value == 2 %}
+                    <div class="c2" style="background:#fb06fb;" title="Halfday Leave">{{obj.date}}</div>
+                    {% elif obj.value == 3 %}
+                            {% if forloop.counter|add:"1"|divisibleby:"7" or forloop.counter|divisibleby:"7" %}
+                            <div class="c2" style="background:#f05050;">{{obj.date}}</div>
+                            {%else%}
+                            <div class="c2">{{obj.date}}</div>
+                            {%endif%}
+                    {%endif%}
+                {%endif%}
 
+
+
+
+                {% if forloop.counter|divisibleby:"7" %}
+                <br>
+                {%endif%}
+            {%endfor%}
+        </div><br>
+        {% for o in hobj %}
+        <label style="font-size:12px;">{{o.hdate}} : {{o.hdesc}}</label><br>
+        {%endfor%}
+        {%endif%}
+        </form>
     </div>
 </div>
-<script>
-let today = new Date();
-let day=today.getDate();
-
-let currentMonth = today.getMonth();
-let currentYear = today.getFullYear();
-let selectYear = document.getElementById("year");
-let selectMonth = document.getElementById("month");
-
-let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-let monthAndYear = document.getElementById("monthAndYear");
-showCalendar(currentMonth, currentYear);
-
-
-function next() {
-    currentYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
-    currentMonth = (currentMonth + 1) % 12;
-    showCalendar(currentMonth, currentYear);
-}
-
-function previous() {
-    currentYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
-    currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
-    showCalendar(currentMonth, currentYear);
-}
-
-function jump() {
-    currentYear = parseInt(selectYear.value);
-    currentMonth = parseInt(selectMonth.value);
-    showCalendar(currentMonth, currentYear);
-}
-
-function showCalendar(month, year) {
-
-    let firstDay = (new Date(year, month)).getDay();
-    let daysInMonth = 32 - new Date(year, month, 32).getDate();
-
-    let tbl = document.getElementById("calendar-body"); // body of the calendar
-
-    // clearing all previous cells
-    tbl.innerHTML = "";
-
-    // filing data about month and in the page via DOM.
-    monthAndYear.innerHTML = months[month] + " " + year;
-    selectYear.value = year;
-    selectMonth.value = month;
-
-    // creating all cells
-    let date = 1;
-    for ( i = 0; i < 6; i++) {
-        // creates a table row
-        let row = document.createElement("tr");
-
-        //creating individual cells, filing them up with data.
-        for ( j = 0; j < 7; j++) {
-
-            if (i === 0 && j < firstDay) {
-                let cell = document.createElement("td");
-                let cellText = document.createTextNode("");
-                cell.appendChild(cellText);
-
-                row.appendChild(cell);
-            }
-            else if (date > daysInMonth) {
-
-                break;
-            }
-
-            else {
-                let cell = document.createElement("td");
-                let cellText = document.createTextNode(date);
-                if(j==0 || j==6 ){
-                 cell.classList.add("bg-danger");
-                }
-                if(date==24){
-                    cell.setAttribute("title","Independence Day");
-                    cell.classList.add("bg-danger");
-
-                }
-                if (date === today.getDate() && year === today.getFullYear() && month === today.getMonth()) {
-                    cell.classList.add("c2");
-
-                } // color today's date
-                cell.appendChild(cellText);
-
-                row.appendChild(cell);
-                date++;
-            }
-
-
-        }
-
-        tbl.appendChild(row); // appending each row into calendar body.
-    }
-
-
-}
-
-</script>
 <script>
 $(document).ready(function(){
 	$('#attendance').addClass("active");
 	$('#view_calendar').addClass("active");
 
-    $('td').css("color","black");
-    $('th').css("color","black");
-
-
     var imgurl="{{user.e_img.url}}";
 	$('#user_img').attr('src',imgurl);
 
-		    var fname="{{user.e_fname}}";
+    var fname="{{user.e_fname}}";
     {% if user.e_lname %}
     var lname="{{user.e_lname}}";
     var flname=fname+" "+lname
@@ -241,6 +149,35 @@ $(document).ready(function(){
     {% endif %}
     $('#username').text(flname);
 
+    month="{{month}}";
+    var x= document.getElementById("month_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==month){
+        res=i;
+        }
+    }
+    $('#month_select')[0].selectedIndex=res;
+
+    year="{{year}}";
+    var x= document.getElementById("year_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==year){
+        res=i;
+        }
+    }
+    $('#year_select')[0].selectedIndex=res;
+
+    eid="{{eid}}";
+    var x= document.getElementById("emp_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==eid){
+        res=i;
+        }
+    }
+    $('#emp_select')[0].selectedIndex=res;
 });
 </script>
 {%endblock%}
