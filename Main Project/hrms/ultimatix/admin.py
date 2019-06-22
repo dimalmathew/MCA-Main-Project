@@ -79,3 +79,8 @@ class Holidays_admin(admin.ModelAdmin):
     list_display = ['hid','hdate','hdesc']
 
 admin.site.register(Holidays,Holidays_admin)
+
+class Appraisal_admin(admin.ModelAdmin):
+    list_display = ['aid','eid','appraiseeid','asdate','aedate','rating','comments','status','updtby']
+
+admin.site.register(Appraisal,Appraisal_admin)

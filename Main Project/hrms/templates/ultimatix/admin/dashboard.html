@@ -1,0 +1,177 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<style>
+    .typo-agile{
+        background: none;
+        padding:0em;
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+<div class="market-updates">
+    <div class="col-md-3 market-update-gd">
+        <div class="market-update-block clr-block-2">
+            <div class="col-md-4 market-update-right">
+                <i class="fa fa-users" ></i>
+            </div>
+            <div class="col-md-8 market-update-left">
+            <h4>Employee</h4>
+                <h3>{{e}}</h3>
+                <p>Are working in our company</p>
+            </div>
+          <div class="clearfix"> </div>
+        </div>
+    </div>
+    <div class="col-md-3 market-update-gd">
+        <div class="market-update-block clr-block-1">
+            <div class="col-md-4 market-update-right">
+                <i class="fa fa-tasks" style="color: white;font-size: 50px;"> </i>
+            </div>
+             <div class="col-md-8 market-update-left">
+             <h4>Projects</h4>
+            <h3>{{p}}</h3>
+            <p>Are currently active in our company</p>
+          </div>
+          <div class="clearfix"> </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 market-update-gd">
+        <div class="market-update-block clr-block-3">
+            <div class="col-md-4 market-update-right">
+                <i class="fa fa-inr" style="color: white;font-size: 62px;"></i>
+            </div>
+            <div class="col-md-8 market-update-left">
+                <h4>Revenue</h4>
+
+                <!--<p style="color: white;font-size: 50px;">{{r1}}</p> Lakhs-->
+                <h3>{{r1}} Cr</h3>
+                <p>Total revenue from projects</p>
+
+            </div>
+          <div class="clearfix"> </div>
+        </div>
+    </div>
+    <div class="col-md-3 market-update-gd">
+        <div class="market-update-block clr-block-4">
+            <div class="col-md-4 market-update-right">
+                <i class="fa fa-hand-o-right" style="color: white;font-size: 53px;" aria-hidden="true"></i>
+            </div>
+            <div class="col-md-8 market-update-left">
+                <h4>Unallocated</h4>
+                <h3>{{u}}</h3>
+                <p>Unallocated employee's</p>
+            </div>
+          <div class="clearfix"> </div>
+        </div>
+    </div>
+   <div class="clearfix"> </div>
+</div>
+
+<div class="row">
+    <div class="panel-body">
+        <div class="col-md-12 w3ls-graph">
+            <!--agileinfo-grap-->
+                <div class="agileinfo-grap">
+                    <div class="agileits-box">
+                        <header class="agileits-box-header clearfix">
+                            <h3>Employee Designation Wise </h3>
+                                <div class="toolbar">
+
+
+                                </div>
+                        </header>
+                        <div class="agileits-box-body clearfix">
+                            <!--<div id="projectChart"></div>-->
+                            <canvas id="bar-chart" width="800" height="350"></canvas>
+                        </div>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<div class="agile-last-grids">
+    <div class="col-md-6 agile-last-left">
+        <div class="agile-last-grid">
+            <div class="area-grids-heading">
+                <h3>ALLOCATION DATA</h3>
+            </div>
+            <!--<div id="graph7"></div>-->
+            <canvas id="pie-chart" width="800" height="800"></canvas>
+
+        </div>
+    </div>
+    <div class="col-md-6 agile-last-left">
+        <div class="agile-last-grid">
+            <div class="area-grids-heading">
+                <h3>Project Wise Status</h3>
+            </div>
+            <!--<div id="graph7"></div>-->
+            <canvas id="doughnut-chart" width="800" height="800"></canvas>
+
+        </div>
+    </div>
+</div>
+<!--<input type="text" id="str">-->
+<script>
+$(document).ready(function(){
+	$('#dashboard').addClass("active");
+
+	var imgurl="{{user.e_img.url}}";
+	$('#user_img').attr('src',imgurl);
+    var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
+
+    new Chart(document.getElementById("bar-chart"), {
+    type: 'bar',
+    data: {
+      labels: ["ASE-T","ASE","SE","IT-A","AST-C","ASC-C","CT","HR"],
+      datasets: [
+        {
+          label:"Designations",
+          backgroundColor: ["#3e95cd", "#3e95cd","#3e95cd","#3e95cd","#3e95cd",
+                            "#3e95cd", "#3e95cd","#3e95cd"],
+          data: [{{ase_t}},{{ase}},{{se}},{{it_a}},{{ast_c}},{{asc_c}},{{ct}},{{hr}}]
+        }
+      ]
+    },
+    });
+
+
+    new Chart(document.getElementById("pie-chart"), {
+    type: 'pie',
+    data: {
+      labels: ["Allocated", "Unallocated"],
+      datasets: [{
+        label: "Population (millions)",
+        backgroundColor: ["#3e95cd", "#8e5ea2"],
+        data: [{{a}},{{u}}]
+      }]
+    },
+    });
+
+
+    new Chart(document.getElementById("doughnut-chart"), {
+    type: 'doughnut',
+    data: {
+      labels: ['Active','Completed'],
+      datasets: [
+        {
+          label: "Projects",
+          backgroundColor: ["#3e95cd", "#8e5ea2"],
+          data: [{{pact}},{{pcomp}}]
+        }
+      ]
+    },
+    });
+
+});
+</script>
+{%endblock%}

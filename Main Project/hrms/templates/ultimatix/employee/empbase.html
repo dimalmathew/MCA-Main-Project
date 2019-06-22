@@ -252,7 +252,9 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             <ul class="dropdown-menu extended logout">
 <!--                <li><a href="#"><i class=" fa fa-suitcase"></i>Profile</a></li>
                 <li><a href="#"><i class="fa fa-cog"></i> Settings</a></li>-->
+                <li><a href="{%url 'ultimatix:empprofile'%}"><i class="fa fa-cog"></i> Profile</a></li>
                 <li><a href="{% url 'ultimatix:show_login' %}"><i class="fa fa-key"></i> Log Out</a></li>
+
             </ul>
         </li>
         <!-- user login dropdown end -->
@@ -326,6 +328,16 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 </a>
                 <ul class="sub">
                     <li><a id="payslip_view" href="{% url 'ultimatix:emppayslip'%}">View Payslip</a></li>
+                </ul>
+            </li>
+            <li class="sub-menu">
+                <a id="appraisal" href="javascript:;">
+                    <i class=" fa fa-gift"></i>
+                    <span>Appraisal</span>
+                </a>
+                <ul class="sub">
+                    <li><a id="appraisal_init" href="{% url 'ultimatix:empappraisal'%}">Initiate Appraisal</a></li>
+                    <li><a id="appraisal_give" href="{% url 'ultimatix:empappraisalreq'%}">Appraisal</a></li>
                 </ul>
             </li>
             </ul>

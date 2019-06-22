@@ -1,0 +1,128 @@
+{% extends 'ultimatix/admin/adminbase.html'%}
+
+{%block body %}
+<link rel="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap.min.js"></script>
+
+<h2 class="w3ls_head">Salary Details</h2>
+<div class="grid_3 grid_4 w3layouts">
+    <div class="bs-example">
+        <form action="{% url 'ultimatix:salary_details'%}" method="post">
+        {%csrf_token%}
+        <div class="row" style="">
+            <div class="col-md-3"></div>
+            <div class="col-md-2">
+                <select  title="Choose Month" class="form-control" style="font-weight:bold;" id="month_select" name="month_select" required>
+                    <option value="1">Jan</option>
+                    <option value="2">Feb</option>
+                    <option value="3">Mar</option>
+                    <option value="4">Apr</option>
+                    <option value="5">May</option>
+                    <option value="6">Jun</option>
+                    <option value="7">Jul</option>
+                    <option value="8">Aug</option>
+                    <option value="9">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select  title="Choose Month" class="form-control" style="font-weight:bold;" id="year_select" name="year_select" required>
+                    <option value="2019">2019</option>
+                    <option value="2020">2020</option>
+                    <option value="2021">2021</option>
+                    <option value="2022">2022</option>
+                    <option value="2023">2023</option>
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary form-control" name="submit" id="submit" value="submit">View</button>
+            </div>
+            <div class="col-md-3"></div>
+        </div><br>
+        <div class="row">
+           <table id="example" class="table table-striped table-bordered" style="width:100%">
+            <thead>
+            <tr>
+                <th style="color:black;">Employee Id</th>
+                <th style="color:black;">Name</th>
+                <th style="color:black;">Designation</th>
+                <th style="color:black;">Annual Salary</th>
+                <th style="color:black;">Earnings</th>
+                <th style="color:black;">Deductions</th>
+                <th style="color:black;">LOP</th>
+                <th style="color:black;">Net Salary</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for r in res_list %}
+            <tr>
+                <td style="color:black;">{{r.eid}}</td>
+                <td style="color:black;">{{r.name}}</td>
+                <td style="color:black;">{{r.desig}}</td>
+                <td style="color:black;">{{r.ctc}}</td>
+                <td style="color:black;">{{r.earn}}</td>
+                <td style="color:black;">{{r.ded}}</td>
+                <td style="color:black;">{{r.lop}}</td>
+                <td style="color:black;">{{r.fin}}</td>
+            </tr>
+            {%endfor%}
+            </tbody>
+           </table>
+        </div>
+            <div class="row">
+                <div class="col-md-9"></div>
+                <div class="col-md-3">
+                    <label for="total" class="">Total Amount</label>
+                    <input type="text" style="font-weight:bold;" value="{{s}}" class="form-control" id="total"disabled>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+$(document).ready(function(){
+    $('#pslip').addClass("active");
+	$('#view_slry').addClass("active");
+    $('#example').DataTable();
+
+    var imgurl="{{user.e_img.url}}";
+	$('#user_img').attr('src',imgurl);
+
+    var fname="{{user.e_fname}}";
+    {% if user.e_lname %}
+    var lname="{{user.e_lname}}";
+    var flname=fname+" "+lname
+    {%else%}
+    var flname=fname;
+    {% endif %}
+    $('#username').text(flname);
+
+    month="{{month}}";
+    var x= document.getElementById("month_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==month){
+        res=i;
+        }
+    }
+    $('#month_select')[0].selectedIndex=res;
+
+    year="{{year}}";
+    var x= document.getElementById("year_select");
+    res=0;
+    for(i=0; i<x.options.length;i++){
+        if(x.options[i].value==year){
+        res=i;
+        }
+    }
+    $('#year_select')[0].selectedIndex=res;
+});
+</script>
+{%endblock%}

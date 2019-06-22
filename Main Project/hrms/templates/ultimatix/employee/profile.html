@@ -1,0 +1,187 @@
+{% extends 'ultimatix/employee/empbase.html'%}
+
+{%block body %}
+<!--<h2 class="w3ls_head" style="margin-bottom: 0.5em;">Allocation Details</h2>-->
+<div class="grid_3 grid_4 w3layouts">
+    <div class="bs-example">
+        <div class="panel-group">
+            <form action="{%url 'ultimatix:empprofile'%}" method="post" enctype="multipart/form-data">
+                {%csrf_token%}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading"  style="text-align:left;">Personal Information</div>
+                        <div class="panel-body">
+
+                            <div class="form-group row">
+                                <!--<div class="col-md-2"></div>-->
+                                <div class="col-md-5">
+                                    <div class="panel-group">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"  style="text-align:left;">Permanent Address</div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="paddr1">Address Line 1</label>
+                                                        <input type="text" class="form-control" name="paddr1" id="paddr1" value="{{user.e_paddr1}}" required>
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="paddr2">Address Line 2</label>
+                                                        <input type="text" class="form-control" name="paddr2" id="paddr2" value="{{user.e_paddr2}}" required>
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="paddr3">Address Line 3</label>
+                                                        {% if user.e_paddr3 %}
+                                                        <input type="text" class="form-control" name="paddr3" id="paddr3" value="{{user.e_paddr3}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="paddr3" id="paddr3" value="">
+                                                        {%endif%}
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                            </div>
+					                    </div>
+				                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <div class="checkbox">
+                                            <label for="chk_addr">
+                                                <input type="checkbox" value="Y" id="chk_addr" name="chk_addr">
+                                                <b>Check if same</b>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="panel-group">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading"  style="text-align:left;">Current Address</div>
+                                            <div class="panel-body">
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="caddr1">Address Line 1</label>
+                                                        {%if user.e_caddr1 %}
+                                                        <input type="text" class="form-control" name="caddr1" id="caddr1" value="{{user.e_caddr1}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="caddr1" id="caddr1" value="">
+                                                        {%endif%}
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="caddr2">Address Line 2</label>
+                                                        {% if user.e_caddr2%}
+                                                        <input type="text" class="form-control" name="caddr2" id="caddr2" value="{{user.e_caddr2}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="caddr2" id="caddr2" value="">
+                                                        {%endif%}
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-2"></div>
+                                                    <div class="col-md-8">
+                                                        <label for="caddr3">Address Line 3</label>
+                                                        {%if user.e_caddr3%}
+                                                        <input type="text" class="form-control" name="caddr3" id="caddr3" value="{{user.e_caddr3}}">
+                                                        {%else%}
+                                                        <input type="text" class="form-control" name="caddr3" id="caddr3" value="">
+                                                        {%endif%}
+                                                    </div>
+                                                    <div class="col-md-2"></div>
+                                                </div>
+                                            </div>
+					                    </div>
+				                    </div>
+                                </div>
+                                <!--<div class="col-md-2"></div>-->
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-1"></div>
+                                <div class="col-md-5">
+                                    <label for="email1">E-mail</label>
+                                    <input type="email" class="form-control" name="email" id="email1" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email !" value="{{user.e_email}}" required>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="mnumber">Mobile Number</label>
+                                    <input type="text" class="form-control" name="mnumber" id="mnumber" pattern="(7|8|9)\d{9}" title="Please enter the 10 digit mobile number starts with 7/8/9 !" value="{{user.e_mnumber}}" required>
+                                </div>
+                                <div class="col-md-1"></div>
+                            </div>
+                            <div class="form-group row">
+                                <div class="col-md-1"></div>
+                                <div class="col-md-5">
+                                    <label for="psw1">Password</label>
+                                    <input type="password" class="form-control" name="psw1" id="psw1" >
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="psw2">Confirm Password</label>
+                                    <input type="password" class="form-control" name="psw2" id="psw2" >
+                                </div>
+                                <div class="col-md-1"></div>
+                            </div>
+<!--                            <div class="form-group row">
+
+                                <div class="col-md-1"></div>
+                                <div class="col-md-5">
+                                    <input type="file" name="myfile" id="myfile">
+                                </div>
+                            </div>-->
+                            <div class="form-group row">
+                                <div class="col-md-4"></div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-primary form-control" type="submit" name="submit" value="submit" id="btn_submit">Submit</button>
+                                </div>
+                                <div class="col-md-4"></div>
+                            </div>
+                        </div>
+					</div>
+            </form>
+				</div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+       $("#chk_addr").click(function(){
+       if ($('#chk_addr').is(":checked")){
+
+           $('#caddr1').val($('#paddr1').val());
+           $('#caddr2').val($('#paddr2').val());
+           $('#caddr3').val($('#paddr3').val());
+       }
+       else{
+           $('#caddr1').val('');
+           $('#caddr2').val('');
+           $('#caddr3').val('' );
+       }
+    });
+
+    $("#btn_submit").click(function(){
+    var a=$('#psw1').val();
+    var b=$('#psw2').val();
+    var f=0;
+        if(a!=b){
+        alert('Password and Confirm Password must be same !');
+        f=1;
+        }
+        if(f==1){
+        event.preventDefault();
+        }
+    });
+
+});
+</script>
+
+{%endblock%}

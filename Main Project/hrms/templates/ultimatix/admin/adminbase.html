@@ -261,8 +261,14 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
             <ul class="sidebar-menu" id="nav-accordion">
                 <li>
                     <a id="home" href="{% url 'ultimatix:home_view'%}">
-                        <i class="fa fa-dashboard"></i>
+                        <i class="fa fa-home"></i>
                         <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a id="dashboard" href="{% url 'ultimatix:admindashboard'%}">
+                        <i class="fa fa-dashboard"></i>
+                        <span>Dashboard</span>
                     </a>
                 </li>
                 
@@ -331,11 +337,22 @@ Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, Sony
                 <li class="sub-menu">
                     <a id="pslip" href="javascript:;">
                         <i class="fa fa-inr"></i>
-                        <span>Payslip </span>
+                        <span>Payroll </span>
                     </a>
                     <ul class="sub">
-                        <li><a id="view_pslip" href="{% url 'ultimatix:generate_payslip' %}">View</a></li>
+                        <!--<li><a id="view_pslip" href="{% url 'ultimatix:generate_payslip' %}">View</a></li>-->
+                        <li><a id="view_slry" href="{% url 'ultimatix:salary_details' %}">Salary Details</a></li>
                     </ul>
+                </li>
+                <li class="sub-menu">
+                <a id="appraisal" href="javascript:;">
+                    <i class=" fa fa-gift"></i>
+                    <span>Appraisal</span>
+                </a>
+                <ul class="sub">
+                    <!--<li><a id="appraisal_init" href="{% url 'ultimatix:empappraisal'%}">Initiate Appraisal</a></li>-->
+                    <li><a id="appraisal_give" href="{% url 'ultimatix:adminappraisalreq'%}">Appraisal Request</a></li>
+                </ul>
                 </li>
                 <li class="sub-menu">
                     <a id="settings" href="javascript:;">

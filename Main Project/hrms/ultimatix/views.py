@@ -4,7 +4,7 @@ import os
 
 import openpyxl
 from django.db import connection,DatabaseError
-from django.db.models import Max
+from django.db.models import Max, Sum
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 
@@ -34,7 +34,7 @@ def home_view(request):
 
     if logged_in:
         date=datetime.now()
-        #date=datetime.strptime('2019-04-30','%Y-%m-%d')
+        #date=datetime.strptime('2020-01-01','%Y-%m-%d')
         if (date.day == calendar.monthrange(date.year, date.month)[1]):
             ob=Employee.objects.all().exclude(e_id='1022890')
             ed=str(calendar.monthrange(date.year, date.month)[1])
@@ -126,7 +126,25 @@ def home_view(request):
                                         bs=round(float(bs),2),conv=round(float(conv),2),hra=round(float(hra),2),city=round(float(city),2),
                                         sundry=round(float(sundry),2),ptax=round(float(ptax),2),pf=round(float(pf),2),
                                         esis=round(float(esis),2),lop=round(float(lop),2),status='Y')
-
+        elif date.day==1 and date.month in(1,4,7,10):
+            ob = Employee.objects.all().exclude(e_id='1022890')
+            if date.month == 1:
+                for o in ob:
+                    o.e_cl=2.0
+                    o.e_sl=2.0
+                    o.e_el=4.0
+                    o.e_fl=2.0
+                    o.save()
+                    print('flexi and other leave credit')
+            else:
+                for o in ob:
+                    r=Employee.objects.filter(e_id=str(o.e_id),e_cl=2.0,e_sl=2.0)
+                    if not r:
+                        o.e_cl=2.0
+                        o.e_sl=2.0
+                        o.e_el=float(o.e_el)+4.0
+                        o.save()
+                        print('credit other leave')
         else:
             print('not month end')
         news = News.objects.all().order_by('-nid')
@@ -419,13 +437,14 @@ def viewemp_view(request):
     #eobj=Employee.objects.all().exclude(e_id='1022890')
     cursor = connection.cursor()
     sql = '''
-    select ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender,
-    ue.e_doj, ud.d_desc, ues.es_ctc, ue.e_status,ue.e_img
+    select distinct ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ue.e_gender, ue.e_doj, ud.d_desc, ues.es_ctc, 
+    ue.e_status,ue.e_img,ue.e_email,ue.e_qfn,upm.pid_id
     from ultimatix_employee ue
     left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
     left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
     left outer join ultimatix_employee_sal ues on ues.es_eid_id = ue.e_id
-    where ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and ues.es_status = 'Y'
+    left outer join ultimatix_project_members upm on upm.eid_id = ues.es_eid_id
+    where upm.pmedate is null and ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and ues.es_status = 'Y' order by (ue.e_fname ||' ' ||ue.e_lname) asc
     '''
     cursor.execute(sql)
     res = cursor.fetchall()
@@ -440,6 +459,9 @@ def viewemp_view(request):
         t['ctc']=r[5]
         t['status']=r[6]
         t['img']=r[7]
+        t['email']=r[8]
+        t['qfn']=r[9]
+        t['pid']=r[10]
         res_list.append(t)
     cursor.close()
     logged_in = request.session['eid']
@@ -685,6 +707,9 @@ def allocate_view(request):
         desig_cd=Designation.objects.get(d_id=int(request.POST.get('desig_select'))).d_cd
         sdate=str(datetime.now())
 
+        ###if project is not yet started
+        pdate=Project.objects.get()
+
         #### if employee is assigned to same project already
         cursor = connection.cursor()
         sql = """
@@ -777,7 +802,9 @@ def allocate_view(request):
             return redirect('ultimatix:show_login')
 
 def default_allocate_view():
-    pobj = Project.objects.all().exclude(pstatus='C')
+    s = datetime.now().date()
+    #pobj = Project.objects.all().exclude(pstatus='C')
+    pobj=Project.objects.all().exclude(psdate__gt=s).exclude(pstatus='C')
     dobj = Designation.objects.all().exclude(d_cd='SYSADMIN')
     initial_desid=Designation.objects.all().exclude(d_cd='SYSADMIN').first().d_id
     cursor = connection.cursor()
@@ -813,11 +840,9 @@ def proejctmembers_view(request,pid):
             #pmid=request.POST.get('pmid')
             id=request.POST.get('submit')
             pmid=request.POST.get(request.POST.get('submit')+"_pmid")
-            #pmedate = str(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'))
+            pmedate = str(datetime.now())
             #edate=(datetime.now().strftime('%Y-%m-%d  %H:%M:%S'))
-
             Project_members.objects.filter(pmid=pmid).update(pmedate=pmedate, pmstatus='N')
-
             p = Project.objects.get(pid=pid)
             test = Project_members.objects.filter(pid=pid)
             cursor = connection.cursor()
@@ -838,11 +863,20 @@ def proejctmembers_view(request,pid):
                 t['eid'] = str(r[1])
                 t['name'] = str(r[2])
                 t['prdesc'] = str(r[3])
-                t['pmsdate'] = str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
-                if not str(r[5]):
+                #t['pmsdate'] = str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
+                str1 = str(r[4])
+                str1 = str1.split(".")
+                t['pmsdate'] = str1[0]
+                '''if not str(r[5]):
                     t['pmedate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
                 else:
-                    t['pmedate'] = str(r[5])
+                    t['pmedate'] = str(r[5])'''
+                if r[5] is not None:
+                    str1=str(r[5])
+                    str1=str1.split(".")
+                    t['pmedate']=str1[0]
+                else:
+                    t['pmedate']="-"
                 t['pmstatus'] = str(r[6])
                 res_list.append(t)
             logged_in = request.session['eid']
@@ -853,7 +887,7 @@ def proejctmembers_view(request,pid):
         else:
             p=Project.objects.get(pid=pid)
             test = Project_members.objects.filter(pid=pid)
-            print(test)
+            #print(test)
             #pobj=Project_members.objects.filter(pid=pid)
             cursor = connection.cursor()
             sql = """
@@ -873,15 +907,22 @@ def proejctmembers_view(request,pid):
                 t['eid']=str(r[1])
                 t['name']=str(r[2])
                 t['prdesc']=str(r[3])
-                t['pmsdate']=str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
-                if not str(r[5]):
-                    t['pmedate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
+                #t['pmsdate']=str((r[4]).strftime('%Y-%m-%d  %H:%M:%S'))
+                str1 = str(r[4])
+                str1 = str1.split(".")
+                t['pmsdate'] = str1[0]
+                if r[5] is not None:
+                    str1=str(r[5])
+                    str1=str1.split(".")
+                    t['pmedate']=str1[0]
                 else:
-                    t['pmedate'] = str(r[5])
+                    t['pmedate']="-"
+
                 t['pmstatus']=str(r[6])
                 res_list.append(t)
             logged_in = request.session['eid']
             user = Employee.objects.get(e_id=logged_in)
+            #print(str(res_list))
             return render(request,'ultimatix/admin/updtprojectmembers.html',{'p':p,'res':res_list,'user':user})
 
     else:
@@ -1361,6 +1402,7 @@ def empmyproject(request):
     role=findrole(logged_in)
     ob=Project_members.objects.filter(eid_id=logged_in, pmstatus='Y')
     if ob:
+        print('allocated')
         pid=Project_members.objects.get(eid_id=logged_in, pmstatus='Y').pid_id
         prole=Project_members.objects.get(eid_id=logged_in, pmstatus='Y')
         proledesc=Project_roles.objects.get(r_id=Project_members.objects.get(eid_id=logged_in, pmstatus='Y').rid_id).r_desc
@@ -1390,6 +1432,7 @@ def empmyproject(request):
                 t['pmedate'] = str(r[5])
             t['pmstatus'] = str(r[6])
             res_list.append(t)
+
         sql='''
         SELECT p.pid,p.pdesc,e.e_id, (e.e_fname||" "||ifnull(e.e_lname,"")), pr.r_desc, pm.pmsdate, pm.pmedate, pm.pmstatus
         FROM ultimatix_project p
@@ -1410,13 +1453,35 @@ def empmyproject(request):
             t['pmsdate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
             t['pmedate'] = str((r[6]).strftime('%Y-%m-%d  %H:%M:%S'))
             res_list2.append(t)
-        print('role : '+str(role))
+        #print('role : '+str(role))
         cursor.close()
         return render(request, 'ultimatix/employee/myproject.html',
                       {'p':p,'res':res_list,'res2':res_list2,'user': user, 'role': role,'prole':prole,'proledesc':proledesc})
     else:
+        cursor = connection.cursor()
+        sql = '''
+        SELECT p.pid,p.pdesc,e.e_id, (e.e_fname||" "||ifnull(e.e_lname,"")), pr.r_desc, pm.pmsdate, pm.pmedate, pm.pmstatus
+        FROM ultimatix_project p
+        LEFT OUTER JOIN ultimatix_project_members pm ON pm.pid_id = p.pid
+        LEFT OUTER JOIN ultimatix_project_roles pr ON pr.r_id = pm.rid_id
+        LEFT OUTER JOIN ultimatix_employee e ON e.e_id = pm.eid_id
+        WHERE e.e_id=%s and pm.pmstatus='N' order by pm.pmsdate DESC         
+        '''
+        cursor.execute(sql, [logged_in])
+        res2 = cursor.fetchall()
+        res_list2 = []
+        for r in res2:
+            t = {}
+            t['pid'] = str(r[0])
+            t['pdesc'] = str(r[1])
+            t['ename'] = str(r[3])
+            t['rdesc'] = str(r[4])
+            t['pmsdate'] = str((r[5]).strftime('%Y-%m-%d  %H:%M:%S'))
+            t['pmedate'] = str((r[6]).strftime('%Y-%m-%d  %H:%M:%S'))
+            res_list2.append(t)
+        cursor.close()
         return render(request, 'ultimatix/employee/myproject.html',
-                      {'user': user, 'role': role,'msg':' You are not allocated !'})
+                      {'user': user, 'role': role,'res2':res_list2,'msg':' You are not allocated !'})
 
 def empdetails(request):
     cursor = connection.cursor()
@@ -1428,7 +1493,7 @@ def empdetails(request):
     left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
     left outer join ultimatix_employee_sal ues on ues.es_eid_id = ue.e_id
     left outer join ultimatix_project_members upm on upm.eid_id = ues.es_eid_id
-    where ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and ues.es_status = 'Y' order by (ue.e_fname ||' ' ||ue.e_lname) asc
+    where upm.pmedate is null and ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and ues.es_status = 'Y' order by (ue.e_fname ||' ' ||ue.e_lname) asc
     '''
     cursor.execute(sql)
     res = cursor.fetchall()
@@ -1850,3 +1915,289 @@ def findmyprojectmembers(pid,logged_in):
     for r in res:
         emp_list.append(r[0])
     return emp_list
+
+def admindashboard(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    e=Employee.objects.filter(~Q(e_id='1022890',e_status='Y')).count()
+    p=Project.objects.filter(pstatus='A').count()
+    #r=Project.objects.filter(pstatus='A').aggregate(Sum('pbudget'))
+    r = Project.objects.aggregate(Sum('pbudget'))
+    r1=round(float(r['pbudget__sum']/10000000),2)
+    cursor = connection.cursor()
+    sql="""
+    select count(DISTINCT ue.e_id)
+    from ultimatix_employee ue
+    left outer join ultimatix_project_members upm on upm.eid_id=ue.e_id
+    where upm.pmstatus='Y' and ue.e_id!='1022890'
+    """
+    cursor.execute(sql)
+    res = cursor.fetchone()
+    a=int(res[0])
+    print(str(e)+" "+str(a))
+    u=e-a
+    sql='''
+    select ed_did_id,ud.d_cd,count(*) as tot_count from ultimatix_employee_desig ued 
+    left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+    where ud.d_cd!='SYSADMIN' and ued.ed_status='Y'
+    group by ued.ed_did_id order by ed_did_id
+    '''
+    cursor.execute(sql)
+    res = cursor.fetchall()
+
+    '''label=""
+    data=""
+    for r in res:
+        label=label+'"'+str(r[1])+'"'+","
+        data=data+'"'+str(r[2])+'"'+","
+    label = label[:-1]
+    data=data[:-1]
+    print(label)'''
+
+    for r in res:
+        if str(r[1])=='ASE-T':
+            ase_t=int(r[2])
+        elif str(r[1])=='ASE':
+            ase=int(r[2])
+        elif str(r[1])=='SE':
+            se=int(r[2])
+        elif str(r[1])=='IT-A':
+            it_a=int(r[2])
+        elif str(r[1])=='AST-C':
+            ast_c=int(r[2])
+        elif str(r[1])=='ASC-C':
+            asc_c=int(r[2])
+        elif str(r[1])=='CT':
+            ct=int(r[2])
+        elif str(r[1])=='HR':
+            hr=int(r[2])
+
+    pact=Project.objects.filter(pstatus='A').count()
+    pcomp=Project.objects.filter(pstatus='C').count()
+    return render(request,'ultimatix/admin/dashboard.html',{'user':user,'e':e,'p':p,
+                        'r1':r1,'u':u,'a':a,'ase_t':ase_t,'ase':ase,'se':se,'it_a':it_a,
+                        'ast_c':ast_c,'asc_c':asc_c,'ct':ct,'hr':hr,'pact':pact,'pcomp':pcomp})
+
+
+def salary_details(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    if request.method=='POST':
+        month = (request.POST.get('month_select'))
+        m = month
+        year = (request.POST.get('year_select'))
+        ed = str(calendar.monthrange(int(year), int(month))[1])
+        if len(month) == 1:
+            month = '0' + month
+        sdate = year + "-" + month + "-01"
+        edate = year + "-" + month + "-" + ed
+
+        cursor = connection.cursor()
+        sql='''
+        select ue.e_id, (ue.e_fname ||' ' ||ue.e_lname) as Name, ud.d_desc,uw.ctc,
+        uw.ctc_pm,
+        uw.bs,uw.conv,uw.hra,uw.city,uw.sundry,
+        uw.ptax,uw.pf,uw.esis,uw.lop,
+        uw.sdate,uw.edate
+        from ultimatix_employee ue
+        left outer join ultimatix_employee_desig ued on ued.ed_eid_id = ue.e_id
+        left outer join ultimatix_designation ud on ud.d_id = ued.ed_did_id
+        left outer join ultimatix_wage uw on uw.eid_id=ue.e_id
+        where ued.ed_status = 'Y' and ud.d_cd!='SYSADMIN' and uw.sdate>=%s and uw.edate<=%s        
+        '''
+        cursor.execute(sql,[sdate,edate])
+        res = cursor.fetchall()
+        res_list=[]
+        s=0.0
+        print(str(res))
+        for r in res:
+            t={}
+            t['eid']=r[0]
+            t['name']=r[1]
+            t['desig']=r[2]
+            t['ctc']=float(r[3])
+            t['ctc_pm']=float(r[4])
+            t['bs']=float(r[5])
+            t['conv']=float(r[6])
+            t['hra']=float(r[7])
+            t['city']=float(r[8])
+            t['sundry']=float(r[9])
+            t['ptax']=float(r[10])
+            t['pf']=float(r[11])
+            t['esis']=float(r[12])
+            t['lop']=float(r[13])
+            #t['earn']=float(res[5])+float(res[6])+float(res[7])+float(res[8])+float(res[9])
+            t['earn']=round((t['bs']+t['conv']+t['hra']+t['city']+t['sundry']),2)
+            #t['ded']=float(res[10])+float(res[11])+float(res[12])
+            t['ded']=round((t['ptax']+t['pf']+t['esis']),2)
+            #t['fin']=round((float(res[5])+float(res[6])+float(res[7])+float(res[8])+float(res[9]))-float(res[13]),2)
+            t['fin']=round((t['earn']-t['lop']),2)
+            #t['earn']=float(t['bs'])
+            #print(t['earn'])
+            #s=s+round((float(res[5])+float(res[6])+float(res[7])+float(res[8])+float(res[9]))-float(res[13]),2)
+            res_list.append(t)
+            s=s+(t['earn']-t['lop'])
+        return render(request, 'ultimatix/admin/salary_details.html', {'user': user,'res_list':res_list,'s':s,'month':m,'year':year})
+    else:
+        return render(request, 'ultimatix/admin/salary_details.html',{'user':user})
+
+
+def empprofile(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        paddr1 = request.POST.get('paddr1')
+        paddr2 = request.POST.get('paddr2')
+        paddr3 = request.POST.get('paddr3')
+        caddr1 = request.POST.get('caddr1')
+        caddr2 = request.POST.get('caddr2')
+        caddr3 = request.POST.get('caddr3')
+        email = request.POST.get('email')
+        mnumber = request.POST.get('mnumber')
+        pwd=request.POST.get('psw1')
+        #img=request.FILES['myfile']
+        #print(img)
+        if pwd=="":
+            pwd=user.e_pwd
+        #print(pwd)
+        '''if img:
+            Employee.objects.filter(e_id=logged_in).update(e_paddr1=paddr1,
+                                                 e_paddr2=paddr2,e_paddr3=paddr3,e_caddr1=caddr1,
+                                                 e_caddr2=caddr2,e_caddr3=caddr3,e_email=email,
+                                               e_mnumber=mnumber,e_pwd=pwd,e_img=img)
+        else:'''
+        Employee.objects.filter(e_id=logged_in).update(e_paddr1=paddr1,
+                                             e_paddr2=paddr2,e_paddr3=paddr3,e_caddr1=caddr1,
+                                             e_caddr2=caddr2,e_caddr3=caddr3,e_email=email,
+                                           e_mnumber=mnumber,e_pwd=pwd)
+        return redirect('ultimatix:home_view')
+        #return HttpResponse('success')
+    else:
+        return render(request,'ultimatix/employee/profile.html',{'user':user,'role':role})
+
+
+def empappraisal(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        date = datetime.now().date()
+        s = str(date.year - 1) + "-01-01"
+        ed = calendar.monthrange(date.year - 1, 12)[1]
+        e = str(date.year - 1) + "-12-" + str(ed)
+        m = str(date.month)
+        if len(m) == 1:
+            m = '0' + str(m)
+        date1 = str(date.year - 1) + "-" + m + "-" + str(date.day)
+        ob=Appraisal.objects.filter(eid=logged_in,asdate__lte=date1,aedate__gte=date1)
+        if not ob:
+            appr=findqueueid(logged_in)
+            Appraisal.objects.create(eid=Employee.objects.get(e_id=logged_in),
+                                     appraiseeid=appr,asdate=s,aedate=e,status='P')
+            aobj=Appraisal.objects.filter(eid=logged_in)
+            return render(request, 'ultimatix/employee/appraisal.html', {'user': user, 'role': role,'aobj':aobj,'success':'Initiated successfully !'})
+        else:
+            aobj = Appraisal.objects.filter(eid=logged_in)
+            return render(request, 'ultimatix/employee/appraisal.html', {'user': user, 'role': role,'aobj':aobj,'error':'Appraisal has been initiated already for the same period ! !'})
+    else:
+        aobj = Appraisal.objects.filter(eid=logged_in)
+        return render(request,'ultimatix/employee/appraisal.html',{'user':user,'role':role,'aobj':aobj})
+
+
+def empappraisalreq(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        if request.POST.get('submit'):
+            aid = request.POST.get('submit')
+            rating = float(request.POST.get(request.POST.get('submit') + "_rating"))
+            comments= request.POST.get(request.POST.get('submit') + "_comments")
+            eid=Appraisal.objects.get(aid=aid).eid_id
+            prev_sal=float(Employee_sal.objects.get(es_eid=eid,es_status='Y').es_ctc)
+            if rating==10:
+                inr=12.0
+            elif rating>=8:
+                inr=10.0;
+            elif rating>=6:
+                inr=7.0
+            elif rating>=4:
+                inr=5.0
+            elif rating>=2:
+                inr=3.0
+            else:
+                inr=1.0
+            #print(inr)
+            new_sal=float(prev_sal)+(float(prev_sal)*inr)/100
+            Employee_sal.objects.filter(es_eid=eid,es_status='Y').update(es_ctc=new_sal)
+            Appraisal.objects.filter(aid=aid).update(rating=rating,comments=comments,status='C',updtby=logged_in)
+            aobj = Appraisal.objects.filter(appraiseeid=logged_in, status='P')
+            return render(request, 'ultimatix/employee/appraisalreq.html', {'user': user, 'role': role, 'aobj': aobj})
+            #return HttpResponse(str(new_sal))
+        elif request.POST.get('fwd'):
+            aobj = Appraisal.objects.filter(appraiseeid=logged_in,status='P')
+            aid=request.POST.get('fwd')
+            fwdto=str(request.POST.get(request.POST.get('fwd')+"_fwdto"))
+            if fwdto=="":
+                return render(request, 'ultimatix/employee/appraisalreq.html',
+                              {'user': user, 'role': role,'aobj': aobj,'error':' Please enter employee id'})
+            else:
+                ob=Employee.objects.filter(e_id=fwdto,e_status='Y')
+                if not ob:
+                    return render(request, 'ultimatix/employee/appraisalreq.html',
+                                  {'user': user, 'role': role, 'aobj': aobj, 'error': ' Please enter a valid employee id'})
+                else:
+                    ownid=Appraisal.objects.get(aid=aid).eid_id
+                    #print(str(ownid)+" "+str(fwdto))
+                    if(str(fwdto)==str(ownid)):
+                        return render(request, 'ultimatix/employee/appraisalreq.html',
+                                      {'user': user, 'role': role, 'aobj': aobj,'error': ' Invalid Employee !'})
+                    else:
+                        aid = request.POST.get('fwd')
+                        rating=request.POST.get(request.POST.get('fwd') + "_rating")
+                        #print(float(rating))
+                        comments=request.POST.get(request.POST.get('fwd') + "_comments")
+                        queueid=fwdto
+                        Appraisal.objects.filter(aid=aid).update(appraiseeid=queueid,updtby=logged_in,
+                                                             rating=float(rating),comments=comments)
+                        aobj = Appraisal.objects.filter(appraiseeid=logged_in,status='P')
+                        return render(request, 'ultimatix/employee/leaverequest.html',
+                                      {'user': user, 'role': role, 'aobj': aobj, 'success': ' Data saved successfully !'})
+            #return HttpResponse(str(aid) + str(fwdto))
+    else:
+        aobj = Appraisal.objects.filter(appraiseeid=logged_in,status='P')
+        return render(request, 'ultimatix/employee/appraisalreq.html', {'user': user, 'role': role, 'aobj': aobj})
+
+def adminappraisalreq(request):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
+    role=findrole(logged_in)
+    if request.method=='POST':
+        if request.POST.get('submit'):
+            aid = request.POST.get('submit')
+            rating = float(request.POST.get(request.POST.get('submit') + "_rating"))
+            comments= request.POST.get(request.POST.get('submit') + "_comments")
+            eid=Appraisal.objects.get(aid=aid).eid_id
+            prev_sal=float(Employee_sal.objects.get(es_eid=eid,es_status='Y').es_ctc)
+            if rating==10:
+                inr=12.0
+            elif rating>=8:
+                inr=10.0;
+            elif rating>=6:
+                inr=7.0
+            elif rating>=4:
+                inr=5.0
+            elif rating>=2:
+                inr=3.0
+            else:
+                inr=1.0
+            #print(inr)
+            new_sal=float(prev_sal)+(float(prev_sal)*inr)/100
+            Employee_sal.objects.filter(es_eid=eid,es_status='Y').update(es_ctc=new_sal)
+            Appraisal.objects.filter(aid=aid).update(rating=rating,comments=comments,status='C',updtby=logged_in)
+            aobj = Appraisal.objects.filter(appraiseeid=logged_in, status='P')
+            return render(request, 'ultimatix/admin/appraisalreq.html', {'user': user, 'role': role, 'aobj': aobj})
+    else:
+        aobj = Appraisal.objects.filter(appraiseeid=logged_in, status='P')
+        return render(request, 'ultimatix/admin/appraisalreq.html', {'user': user, 'role': role, 'aobj': aobj})

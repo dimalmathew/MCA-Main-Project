@@ -27,11 +27,12 @@
                 <th style="color:black;">Employee Id</th>
                 <th style="color:black;">Name</th>
                 <th style="color:black;">Gender</th>
-                <th style="color:black;">Date of joining</th>
+                <!--<th style="color:black;">Date of joining</th>-->
 
                 <th style="color:black;">Designation</th>
                 <th style="color:black;">Salary</th>
                 <th style="color:black;">Status</th>
+                <th style="color:black;">Allocated Project</th>
             </tr>
         </thead>
         <tbody>
@@ -42,11 +43,16 @@
                     <img src="/media/{{e.img}}" width="42;height:42px;" style="border-radius: 50%;border-style:solid;border-width:1px;border-color: black"/> {{e.name}}
                 </td>
                 <td style="color:black;">{{e.gender}}</td>
-                <td style="color:black;">{{e.doj}}</td>
+                <!--<td style="color:black;">{{e.doj}}</td>-->
 
                 <td style="color:black;">{{e.desig}}</td>
                 <td style="color:black;">{{e.ctc}}</td>
                 <td style="color:black;">{{e.status}}</td>
+                {% if e.pid == None %}
+                <td style="color:black;">NA</td>
+                {%else%}
+                <td style="color:black;">{{e.pid}}</td>
+                {%endif%}
             </tr>
             {%endfor%}
 

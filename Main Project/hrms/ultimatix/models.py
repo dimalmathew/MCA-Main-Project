@@ -203,3 +203,18 @@ class Holidays(models.Model):
 
     def __str__(self):
         return str(self.hid)
+
+
+class Appraisal(models.Model):
+    aid=models.AutoField(primary_key=True)
+    eid = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    appraiseeid=models.CharField(max_length=150,null=True,blank=True)
+    asdate=models.DateField(null=True,blank=True)
+    aedate=models.DateField(null=True,blank=True)
+    rating=models.FloatField(null=True,blank=True)
+    comments=models.CharField(max_length=150,null=True,blank=True)
+    status=models.CharField(max_length=1,null=True,blank=True)
+    updtby=models.CharField(max_length=150,null=True,blank=True)
+
+    def __str__(self):
+        return str(self.aid)
