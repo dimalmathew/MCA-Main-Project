@@ -632,6 +632,8 @@ def proejcts_view(request):
         return redirect('ultimatix:show_login')
 
 def updtproj_view(request,pid):
+    logged_in = request.session['eid']
+    user = Employee.objects.get(e_id=logged_in)
     if pid!=0:
         if request.method=='POST':
             if request.POST.get('update'):
@@ -663,7 +665,7 @@ def updtproj_view(request,pid):
         else:
 
             pobj=Project.objects.get(pid=pid)
-            return render(request,'ultimatix/admin/updt_project.html',{'pobj':pobj})
+            return render(request,'ultimatix/admin/updt_project.html',{'pobj':pobj,'user':user})
     elif pid==0:
         return HttpResponse(pid)
 
@@ -708,7 +710,7 @@ def allocate_view(request):
         sdate=str(datetime.now())
 
         ###if project is not yet started
-        pdate=Project.objects.get()
+        #pdate=Project.objects.get()
 
         #### if employee is assigned to same project already
         cursor = connection.cursor()
@@ -1164,7 +1166,7 @@ def leave_request(request):
             logged_in = False
         if logged_in:
             user = Employee.objects.get(e_id=logged_in)
-            lreqobj=Leave.objects.filter(queueid=logged_in).order_by('-reqdate')
+            lreqobj=Leave.objects.filter().order_by('-reqdate')
             return render(request, 'ultimatix/leaverequest.html', {'user': user,'lreqobj':lreqobj})
         else:
             request.session['eid'] = None
@@ -2090,6 +2092,18 @@ def empappraisal(request):
         if len(m) == 1:
             m = '0' + str(m)
         date1 = str(date.year - 1) + "-" + m + "-" + str(date.day)
+        date2=str(Employee.objects.get(e_id=logged_in).e_doj)
+        print(date2)
+        print(date)
+        d2=datetime.strptime(str(date2), '%Y-%m-%d')
+        d1=datetime.strptime(str(date), '%Y-%m-%d')
+        print(d2)
+        print(d1)
+        print(str((d1-d2).days))
+        days1=int((d1-d2).days)
+        '''if days1<180:
+            aobj = Appraisal.objects.filter(eid=logged_in)
+            return render(request, 'ultimatix/employee/appraisal.html', {'user': user, 'role': role,'aobj':aobj,'error':' You cant initiate appraisal now !'})'''
         ob=Appraisal.objects.filter(eid=logged_in,asdate__lte=date1,aedate__gte=date1)
         if not ob:
             appr=findqueueid(logged_in)
